@@ -1,23 +1,37 @@
 import React from 'react';
-import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
-import AboutPage from './pages/AboutPage';
-import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
-import NavBar from './pages/NavBar';
-import SignUpPage from './pages/SignUpPage';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import AboutPage from './core/public/pages/AboutPage';
+import HomePage from './core/public/pages/HomePage';
+import LoginPage from './core/public/pages/LoginPage';
+import SignUpPage from './core/public/pages/SignUpPage';
+
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <HomePage />,
+  },
+  {
+    path: "/about",
+    element: <AboutPage />,
+  },
+  {
+    path: "/login",
+    element: <LoginPage />,
+  },
+  {
+    path: "/register",
+    element: <SignUpPage />,
+  }
+])
 
 const App = () => {
   return (
-    <Router>
-      <NavBar />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<SignUpPage />} />
-        {/* ...other routes... */}
-      </Routes>
-    </Router>
+    <>
+      <ToastContainer position='top-right'/>
+      <RouterProvider router={router} />
+    </>
   );
 };
 
