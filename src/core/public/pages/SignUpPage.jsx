@@ -1,17 +1,19 @@
 import axios from 'axios';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const SignUpPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (password !== confirmPassword){
-      alert("Passwords don't match");
+      toast.error("Passwords don't match");
       return;
     }
 
@@ -25,11 +27,15 @@ const SignUpPage = () => {
       if (response.status===200 || response.status===201) {
         toast.success('Registration success')
         navigate("/login")
+        return;
       }else{
         toast.error('Registration failed');
+        return;
       }
     }catch(e){
+      console.log(e)
       toast.error('Registration failed.');
+      return;
   }
   }
 

@@ -1,28 +1,34 @@
 import axios from 'axios';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const LoginPage = () => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try{
-      const response = axios.post("http://localhost:5000/api/user/login", {
+      const response = await axios.post("http://localhost:5000/api/user/login", {
         email,
         password
       })
       if (response.status === 200){
+        console.log(response)
         toast.success('Successfully Logged In');
+        navigate("/")
       }else{
+        console.log(response)
         toast.error( response || 'Login Failes');
       }
     }catch(e){
+      console.log(response)
       console.log(e)
-      toast.error(e.response?.data?.message || "Login Failed.");
+      toast.error(e || "Login Failed.");
     }
   }
 
