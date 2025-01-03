@@ -18,15 +18,15 @@ const LoginPage = () => {
         password
       })
       if (response.status === 200){
-        console.log(response)
+        // console.log(response)
         toast.success('Successfully Logged In');
         navigate("/")
       }else{
-        console.log(response)
+        // console.log(response)
         toast.error( response || 'Login Failes');
       }
     }catch(e){
-      console.log(response)
+      // console.log(response)
       console.log(e)
       toast.error(e || "Login Failed.");
     }
