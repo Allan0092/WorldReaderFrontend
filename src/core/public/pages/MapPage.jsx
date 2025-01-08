@@ -7,7 +7,7 @@ function MapPage() {
   return (
     <MapContainer
       className="h-screen"
-      center={[51.505, -0.09]}
+      center={[27.712991, 85.317761]}
       zoom={13}
       scrollWheelZoom={true}
     >
@@ -15,7 +15,7 @@ function MapPage() {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <Marker position={[51.505, -0.09]}>
+      <Marker position={[27.712991, 85.317761]}>
         <Popup>
           A pretty CSS3 popup. <br /> Easily customizable.
         </Popup>
