@@ -8,7 +8,7 @@ import MenuItem from "@mui/material/MenuItem";
 import { styled } from "@mui/material/styles";
 import Toolbar from "@mui/material/Toolbar";
 import React, { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 
 // Styled component for the logo (placeholder for your actual logo)
 const Logo = styled("img")({
@@ -21,8 +21,24 @@ const Logo = styled("img")({
 const logoImage = "src/assets/images/WorldReaderLogo.png";
 const userProfilePicture = "/path/to/profile/picture.jpg";
 
+function logout() {
+  localStorage.removeItem("token");
+}
+
+function isTokenValid() {
+  const token = localStorage.getItem("token");
+  if (!token) return false;
+
+  const payload = JSON.parse(atob(token.split(".")[1]));
+  const expiry = payload.exp;
+  const now = Math.floor(Date.now() / 1000);
+
+  return now < expiry;
+}
+
 function TopBar() {
   const [anchorEl, setAnchorEl] = useState(null);
+  const navigate = useNavigate();
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -32,14 +48,30 @@ function TopBar() {
     setAnchorEl(null);
   };
 
+  const handleClickSettings = () => {
+    handleClose();
+    navigate("/profile");
+  };
+
+  const handleLogout = () => {
+    logout();
+    handleClose();
+  };
+
   return (
     <>
       <AppBar position="static">
         <Toolbar>
-          <Logo src={logoImage} alt="WorldReader Logo" />
+          <Logo
+            onClick={() => navigate("/home")}
+            src={logoImage}
+            alt="WorldReader Logo"
+          />
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: "flex" }}>
-            <Button color="inherit">Map</Button>
+            <Button onClick={() => navigate("/map")} color="inherit">
+              Map
+            </Button>
             <Button color="inherit">Library</Button>
             <Button color="inherit">Store</Button>
           </Box>
@@ -68,10 +100,22 @@ function TopBar() {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              <MenuItem onClick={handleClose}>Settings</MenuItem>
-              <MenuItem onClick={handleClose} sx={{ color: "red" }}>
-                Log Out
-              </MenuItem>
+              <MenuItem onClick={handleClickSettings}>Settings</MenuItem>
+              {isTokenValid() ? (
+                <MenuItem onClick={handleLogout} sx={{ color: "red" }}>
+                  Log Out
+                </MenuItem>
+              ) : (
+                <MenuItem
+                  onClick={() => {
+                    handleClose();
+                    navigate("/login");
+                  }}
+                  sx={{ backgroundColor: "lightblue", color: "blue" }}
+                >
+                  Log In
+                </MenuItem>
+              )}
             </Menu>
           </Box>
         </Toolbar>
