@@ -9,6 +9,7 @@ import { styled } from "@mui/material/styles";
 import Toolbar from "@mui/material/Toolbar";
 import React, { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
+import { isTokenValid } from "../utils/authUtil";
 
 // Styled component for the logo (placeholder for your actual logo)
 const Logo = styled("img")({
@@ -23,17 +24,6 @@ const userProfilePicture = "/path/to/profile/picture.jpg";
 
 function logout() {
   localStorage.removeItem("token");
-}
-
-function isTokenValid() {
-  const token = localStorage.getItem("token");
-  if (!token) return false;
-
-  const payload = JSON.parse(atob(token.split(".")[1]));
-  const expiry = payload.exp;
-  const now = Math.floor(Date.now() / 1000);
-
-  return now < expiry;
 }
 
 function TopBar() {

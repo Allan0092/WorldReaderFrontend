@@ -8,20 +8,12 @@ import { ToastContainer } from "react-toastify";
 import TopBar from "./components/Topbar";
 import HomePage from "./core/public/pages/HomePage";
 import MapPage from "./core/public/pages/MapPage";
+import { isTokenValid } from "./utils/authUtil";
 
 const ProfilePage = lazy(() => import("./core/private/pages/ProfilePage"));
 const AboutPage = lazy(() => import("./core/public/pages/AboutPage"));
 const LoginPage = lazy(() => import("./core/public/pages/LoginPage"));
 const SignUpPage = lazy(() => import("./core/public/pages/SignUpPage"));
-
-function isTokenValid() {
-  const token = localStorage.getItem("token");
-  if (!token) return false;
-  const payload = JSON.parse(atob(token.split(".")[1]));
-  const expiry = payload.exp;
-  const now = Math.floor(Date.now() / 1000);
-  return now < expiry;
-}
 
 const PrivateRoute = ({ element }) => {
   const token = isTokenValid();
