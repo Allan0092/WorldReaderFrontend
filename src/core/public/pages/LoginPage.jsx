@@ -29,12 +29,12 @@ const LoginPage = () => {
         navigate("/");
       } else {
         // console.log(response)
-        toast.error(response || "Login Failes");
+        toast.error(response.message || "Login Failed");
       }
     } catch (e) {
       // console.log(response)
       console.log(e);
-      toast.error(e || "Login Failed.");
+      toast.error(e.response.data || "Login Failed.");
     }
   };
 
