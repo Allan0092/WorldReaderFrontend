@@ -17,10 +17,10 @@ function ProfilePage() {
     const fetchUserDetails = async () => {
       try {
         const userDetails = await getCurrentUserDetails();
-        setEmail(userDetails.email);
-        setFirstName(userDetails.first_name);
-        setLastName(userDetails.last_name);
-        setCountry(userDetails.country);
+        setEmail(userDetails.email || "");
+        setFirstName(userDetails.first_name || "");
+        setLastName(userDetails.last_name || "");
+        setCountry(userDetails.country || "");
       } catch (error) {
         console.error("Failed to fetch user details", error);
       }
