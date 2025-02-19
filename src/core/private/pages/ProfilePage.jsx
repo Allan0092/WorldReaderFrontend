@@ -1,7 +1,10 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { getCurrentUserDetails } from "../../../utils/authUtil";
+import {
+  getCurrentToken,
+  getCurrentUserDetails,
+} from "../../../utils/authUtil";
 
 function ProfilePage() {
   const [email, setEmail] = useState("");
@@ -29,21 +32,27 @@ function ProfilePage() {
     e.preventDefault();
     try {
       const response = await axios.post(
-        `http://localhost:5000/api/user/${id}`,
+        `http://localhost:5000/api/user/update`,
         {
           email,
           first_name: firstName,
           last_name: lastName,
           country,
           resetPassword,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${getCurrentToken()}`,
+          },
         }
       );
-      if (response.status === 200) {
+      if (response.status === 201) {
         toast.success("Profile updated successfully");
       } else {
         toast.error("Failed to update profile");
       }
     } catch (e) {
+      console.log(e);
       toast.error("An error occurred while updating the profile");
     }
   };
@@ -73,8 +82,8 @@ function ProfilePage() {
       </div>
       <div className="border-2 p-5 m-6">
         <form onSubmit={handleSubmit}>
-          <div>
-            <label className="font-fondamento text-xl" htmlFor="email">
+          <div className="">
+            <label className="font-fondamento text-lg" htmlFor="email">
               Email
             </label>
             <input
@@ -82,12 +91,12 @@ function ProfilePage() {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+              className="bg-gray-50 border p-2 block w-fit rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 focus:ring-opacity-50 text-gray-900 text-sm "
               required
             />
           </div>
-          <div>
-            <label className="font-fondamento text-xl" htmlFor="first_name">
+          <div className="mt-2">
+            <label className="font-fondamento text-lg" htmlFor="first_name">
               First Name
             </label>
             <input
@@ -95,12 +104,12 @@ function ProfilePage() {
               id="first_name"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+              className="bg-gray-50 border p-2 block w-fit rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 focus:ring-opacity-50 text-gray-900 text-sm "
               required
             />
           </div>
-          <div>
-            <label className="font-fondamento text-xl" htmlFor="last_name">
+          <div className="mt-2">
+            <label className="font-fondamento text-lg" htmlFor="last_name">
               Last Name
             </label>
             <input
@@ -108,12 +117,12 @@ function ProfilePage() {
               id="last_name"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+              className="bg-gray-50 border p-2 block w-fit rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 focus:ring-opacity-50 text-gray-900 text-sm "
               required
             />
           </div>
-          <div>
-            <label className="font-fondamento text-xl" htmlFor="country">
+          <div className="mt-2">
+            <label className="font-fondamento text-lg" htmlFor="country">
               Country
             </label>
             <input
@@ -121,7 +130,7 @@ function ProfilePage() {
               id="country"
               value={country}
               onChange={(e) => setCountry(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+              className="bg-gray-50 border p-2 block w-fit rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 focus:ring-opacity-50 text-gray-900 text-sm "
               required
             />
           </div>
