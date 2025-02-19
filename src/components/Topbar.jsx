@@ -48,6 +48,11 @@ function TopBar() {
     handleClose();
   };
 
+  const [dark, setDark] = useState(false);
+  const toggleDarkMode = () => {
+    setDark(!dark);
+  };
+
   return (
     <>
       <AppBar position="static">
@@ -57,13 +62,29 @@ function TopBar() {
             src={logoImage}
             alt="WorldReader Logo"
           />
-          <Box sx={{ flexGrow: 1 }} />
-          <Box sx={{ display: "flex" }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 2,
+              flexGrow: 1,
+            }}
+          >
             <Button onClick={() => navigate("/map")} color="inherit">
-              Map
+              <h1 className="font-fondamento font-bold text-2xl">Map</h1>
             </Button>
-            <Button color="inherit">Library</Button>
-            <Button color="inherit">Store</Button>
+            <Button color="inherit">
+              <h1 className="font-fondamento font-bold text-2xl">Library</h1>
+            </Button>
+            <Button color="inherit">
+              <h1 className="font-fondamento font-bold text-2xl">Store</h1>
+            </Button>
+          </Box>
+          <Box>
+            <IconButton>
+              <i className="fas fa-heart" />
+            </IconButton>
           </Box>
           <Box sx={{ ml: 2 }}>
             <IconButton
@@ -101,7 +122,6 @@ function TopBar() {
                     handleClose();
                     navigate("/login");
                   }}
-                  sx={{ backgroundColor: "lightblue", color: "blue" }}
                 >
                   Log In
                 </MenuItem>
