@@ -2,6 +2,7 @@ import React, { lazy, Suspense } from "react";
 import {
   createBrowserRouter,
   Navigate,
+  Outlet,
   RouterProvider,
 } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
@@ -22,11 +23,28 @@ function PrivateRoute({ element }) {
   return isTokenValid() ? element : <Navigate to="/login" />;
 }
 
+const ProfileLayout = () => (
+  <>
+    <TopBar />
+    <div className="flex">
+      <ProfileSidebar />
+      <div className="flex-1 ml-64 p-4">
+        <Outlet />
+      </div>
+    </div>
+  </>
+);
+
 // Public Routes
 const publicRouter = [
   {
     path: "/",
-    element: <TopBar />,
+    element: (
+      <>
+        <TopBar />
+        <Outlet />
+      </>
+    ),
     children: [
       {
         index: true,
@@ -89,13 +107,11 @@ const publicRouter = [
   },
 ];
 
-// Private Routes
 const privateRouter = [
   {
     path: "/profile",
-    element: <ProfileSidebar />,
+    element: <ProfileLayout />,
     children: [
-      // Redirect when going to "/profile"
       {
         index: true,
         element: <Navigate to="user-settings" replace />,

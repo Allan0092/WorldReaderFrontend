@@ -8,7 +8,7 @@ import MenuItem from "@mui/material/MenuItem";
 import { styled } from "@mui/material/styles";
 import Toolbar from "@mui/material/Toolbar";
 import React, { useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { isTokenValid } from "../utils/authUtil";
 
 // Styled component for the logo (placeholder for your actual logo)
@@ -130,7 +130,6 @@ function TopBar() {
           </Box>
         </Toolbar>
       </AppBar>
-      <Outlet />
     </>
   );
 }
