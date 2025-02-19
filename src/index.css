@@ -1,3 +1,32 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+*{
+    @apply transition-colors duration-200
+}
+
+@font-face {
+    font-family: 'Fondamento';
+    src: url('./assets/fonts/Fondamento-Regular.ttf') format('.ttf');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Montserrat';
+    src: url('./assets/fonts/Montserrat-VariableFont_wght.ttf') format('.ttf');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Montserrat-Italic';
+    src: url('./assets/fonts/Montserrat-Italic-VariableFont_wght.ttf') format('.ttf');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Fondamento-Italic';
+    src: url('./assets/fonts/Fondamento-Italic.ttf') format('.ttf');
+    font-weight: normal;
+    font-style: normal;
+}
