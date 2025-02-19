@@ -5,15 +5,10 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-
-// Utilities or Hooks
-import { isTokenValid } from "./utils/authUtil"; // Example import
-
-// Components
 import TopBar from "./components/Topbar";
 import ProfileSidebar from "./core/private/components/profileSidebar";
+import { isTokenValid } from "./utils/authUtil";
 
-// Lazy-loaded Pages
 const HomePage = lazy(() => import("./core/public/pages/HomePage"));
 const AboutPage = lazy(() => import("./core/public/pages/AboutPage"));
 const MapPage = lazy(() => import("./core/public/pages/MapPage"));
@@ -22,13 +17,9 @@ const SignUpPage = lazy(() => import("./core/public/pages/SignUpPage"));
 const ProfilePage = lazy(() => import("./core/private/pages/ProfilePage"));
 const UploadBookPage = lazy(() => import("./core/private/pages/uploadBook"));
 
-/**
- * Simple PrivateRoute wrapper
- * Redirects if user is not authenticated
- */
+// Simple PrivateRoute
 function PrivateRoute({ element }) {
-  const tokenValid = isTokenValid();
-  return tokenValid ? element : <Navigate to="/login" />;
+  return isTokenValid() ? element : <Navigate to="/login" />;
 }
 
 // Public Routes
@@ -37,6 +28,14 @@ const publicRouter = [
     path: "/",
     element: <TopBar />,
     children: [
+      {
+        index: true,
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <HomePage />
+          </Suspense>
+        ),
+      },
       {
         path: "home",
         element: (
@@ -77,7 +76,6 @@ const publicRouter = [
           </Suspense>
         ),
       },
-      // Catch-all for unknown routes
       {
         path: "*",
         element: (
@@ -92,15 +90,18 @@ const publicRouter = [
 ];
 
 // Private Routes
-// Notice how the children do NOT start with a slash
 const privateRouter = [
   {
     path: "/profile",
-    element: <ProfileSidebar />, // Acts as a layout
-    errorElement: <>error</>,
+    element: <ProfileSidebar />,
     children: [
+      // Redirect when going to "/profile"
       {
-        path: "user-settings", // /profile/user-settings
+        index: true,
+        element: <Navigate to="user-settings" replace />,
+      },
+      {
+        path: "user-settings",
         element: (
           <PrivateRoute
             element={
@@ -112,7 +113,7 @@ const privateRouter = [
         ),
       },
       {
-        path: "upload-book", // /profile/upload-book
+        path: "upload-book",
         element: (
           <PrivateRoute
             element={
@@ -123,12 +124,12 @@ const privateRouter = [
           />
         ),
       },
-      // You can add more child routes under /profile here if needed
     ],
+    errorElement: <>error</>,
   },
 ];
 
-// Combine both sets of routes
+// Combine routes
 const router = createBrowserRouter([...publicRouter, ...privateRouter]);
 
 function App() {
