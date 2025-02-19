@@ -81,11 +81,7 @@ function TopBar() {
               <h1 className="font-fondamento font-bold text-2xl">Store</h1>
             </Button>
           </Box>
-          <Box>
-            <IconButton>
-              <i className="fas fa-heart" />
-            </IconButton>
-          </Box>
+
           <Box sx={{ ml: 2 }}>
             <IconButton
               aria-label="account of current user"
@@ -100,7 +96,7 @@ function TopBar() {
               id="menu-appbar"
               anchorEl={anchorEl}
               anchorOrigin={{
-                vertical: "top",
+                vertical: "bottom",
                 horizontal: "right",
               }}
               keepMounted
@@ -111,7 +107,9 @@ function TopBar() {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              <MenuItem onClick={handleClickSettings}>Settings</MenuItem>
+              {isTokenValid() ? (
+                <MenuItem onClick={handleClickSettings}>Settings</MenuItem>
+              ) : null}
               {isTokenValid() ? (
                 <MenuItem onClick={handleLogout} sx={{ color: "red" }}>
                   Log Out
