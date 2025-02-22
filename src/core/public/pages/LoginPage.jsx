@@ -1,18 +1,26 @@
-import { TextField } from "@mui/material";
+import SaveIcon from "@mui/icons-material/Save";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { Button, IconButton, InputAdornment, TextField } from "@mui/material";
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigate();
   const [emailError, setEmailError] = useState(false);
+  const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+
+    await new Promise((resolve) => setTimeout(resolve, 5000));
 
     try {
       const response = await axios.post(
@@ -42,8 +50,15 @@ const LoginPage = () => {
       toast.error(e.response.data || "Login Failed.");
       setEmailError(true);
       setPasswordError(true);
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    setEmailError(false);
+    setPasswordError(false);
+  }, [email, password]);
 
   return (
     <div
@@ -56,7 +71,7 @@ const LoginPage = () => {
           {/* Logo */}
           <div className="flex justify-center mb-8">
             <img
-              src="src\assets\images\WorldReaderLogo.png"
+              src="src/assets/images/WorldReaderLogo.png"
               alt="World Reader Logo"
               className="w-32 h-32"
             />
@@ -69,10 +84,11 @@ const LoginPage = () => {
                 variant="filled"
                 label="Email"
                 type="email"
+                disabled={isLoading}
                 value={email}
                 onChange={(e) => {
                   setEmailError(false);
-                  return setEmail(e.target.value);
+                  setEmail(e.target.value);
                 }}
                 className="mt-1 block w-full rounded-md bg-white border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                 autoComplete="email"
@@ -82,28 +98,56 @@ const LoginPage = () => {
             </div>
             <div>
               <TextField
-                id="outlined-input password"
+                id="outlined-input-password"
                 variant="filled"
                 label="Password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
+                disabled={isLoading}
                 onChange={(e) => {
                   setPasswordError(false);
-                  return setPassword(e.target.value);
+                  setPassword(e.target.value);
                 }}
                 className="mt-1 block w-full rounded-md bg-white border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                 autoComplete="current-password"
                 error={passwordError}
                 required
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
             </div>
             <div className="w-full flex justify-center py-4">
-              <button
-                type="submit"
-                className="w-full  flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                Submit
-              </button>
+              {isLoading ? (
+                <Button
+                  loading
+                  loadingPosition="end"
+                  endIcon={<SaveIcon />}
+                  variant="contained"
+                  color="blue-600"
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Submit
+                </Button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Submit
+                </button>
+              )}
             </div>
           </form>
         </div>
