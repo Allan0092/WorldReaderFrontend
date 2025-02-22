@@ -1,7 +1,16 @@
-import SaveIcon from "@mui/icons-material/Save";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import { Button, IconButton, InputAdornment, TextField } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  IconButton,
+  InputAdornment,
+  Paper,
+  TextField,
+  Typography,
+} from "@mui/material";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -20,7 +29,7 @@ const LoginPage = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    // await new Promise((resolve) => setTimeout(resolve, 5000));
 
     try {
       const response = await axios.post(
@@ -30,24 +39,16 @@ const LoginPage = () => {
           password,
         }
       );
+
       if (response.status === 200) {
-        // console.log(response)
-        toast.success("Successfully Logged In");
-        console.log(response);
-        console.log(response.data.token);
         const token = response.data.token;
         localStorage.setItem("token", token);
-        navigate("/");
-      } else {
-        // console.log(response)
-        toast.error(response.message || "Login Failed");
-        setEmailError(true);
-        setPasswordError(true);
+        toast.success("Welcome to WorldReader!");
+        navigate("/library"); // Redirect to library instead of "/"
       }
     } catch (e) {
-      // console.log(response)
-      console.log(e);
-      toast.error(e.response.data || "Login Failed.");
+      const errorMsg = e.response?.data || "Login failed. Please try again.";
+      toast.error(errorMsg);
       setEmailError(true);
       setPasswordError(true);
     } finally {
@@ -61,128 +62,202 @@ const LoginPage = () => {
   }, [email, password]);
 
   return (
-    <div
-      className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center"
-      style={{ backgroundImage: `url('src/assets/images/loginSignupBg.png')` }}
+    <Box
+      sx={{
+        minHeight: "100vh",
+        backgroundImage: `url('src/assets/images/loginSignupBg.png')`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        position: "relative",
+        py: 4,
+      }}
     >
-      {/* Transparent Box */}
-      <div className="w-full max-w-md">
-        <div className="bg-white bg-opacity-75 p-8 rounded-lg shadow-lg">
+      <Container maxWidth="sm">
+        <Paper
+          elevation={6}
+          sx={{
+            bgcolor: "rgba(255, 245, 235, 0.9)", // Warm parchment-like background
+            p: 4,
+            borderRadius: 3,
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
           {/* Logo */}
-          <div className="flex justify-center mb-8">
+          <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
             <img
               src="src/assets/images/WorldReaderLogo.png"
-              alt="World Reader Logo"
-              className="w-32 h-32"
+              alt="WorldReader Logo"
+              style={{ width: 120, height: 120 }}
             />
-          </div>
+          </Box>
+
+          {/* Title */}
+          <Typography
+            variant="h4"
+            align="center"
+            sx={{ fontFamily: "Georgia, serif", color: "#8B4513", mb: 2 }}
+          >
+            WorldReader
+          </Typography>
+          <Typography
+            variant="body2"
+            align="center"
+            sx={{ color: "#A0522D", mb: 4 }}
+          >
+            Log in to explore stories from around the globe
+          </Typography>
+
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <TextField
-                id="outlined-input"
-                variant="filled"
-                label="Email"
-                type="email"
-                disabled={isLoading}
-                value={email}
-                onChange={(e) => {
-                  setEmailError(false);
-                  setEmail(e.target.value);
-                }}
-                className="mt-1 block w-full rounded-md bg-white border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                autoComplete="email"
-                error={emailError}
-                required
-              />
-            </div>
-            <div>
-              <TextField
-                id="outlined-input-password"
-                variant="filled"
-                label="Password"
-                type={showPassword ? "text" : "password"}
-                value={password}
-                disabled={isLoading}
-                onChange={(e) => {
-                  setPasswordError(false);
-                  setPassword(e.target.value);
-                }}
-                className="mt-1 block w-full rounded-md bg-white border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                autoComplete="current-password"
-                error={passwordError}
-                required
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={() => setShowPassword(!showPassword)}
-                        edge="end"
-                      >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </div>
-            <div className="w-full flex justify-center py-4">
+          <Box component="form" onSubmit={handleSubmit} sx={{ spaceY: 3 }}>
+            <TextField
+              fullWidth
+              id="email"
+              label="Email"
+              type="email"
+              variant="outlined"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={isLoading}
+              error={emailError}
+              helperText={emailError ? "Please check your email" : ""}
+              autoComplete="email"
+              required
+              sx={{
+                mb: 3,
+                backgroundColor: "#FFF8E7",
+                borderRadius: 2,
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "#D2B48C" },
+                  "&:hover fieldset": { borderColor: "#A0522D" },
+                  "&.Mui-focused fieldset": { borderColor: "#8B4513" },
+                },
+              }}
+            />
+            <TextField
+              fullWidth
+              id="password"
+              label="Password"
+              type={showPassword ? "text" : "password"}
+              variant="outlined"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
+              error={passwordError}
+              helperText={passwordError ? "Please check your password" : ""}
+              autoComplete="current-password"
+              required
+              sx={{
+                mb: 3,
+                backgroundColor: "#FFF8E7",
+                borderRadius: 2,
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "#D2B48C" },
+                  "&:hover fieldset": { borderColor: "#A0522D" },
+                  "&.Mui-focused fieldset": { borderColor: "#8B4513" },
+                },
+              }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                      disabled={isLoading}
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              disabled={isLoading}
+              sx={{
+                py: 1.5,
+                bgcolor: "#8B4513",
+                color: "white",
+                borderRadius: 2,
+                boxShadow: "0 4px 12px rgba(139, 69, 19, 0.3)",
+                "&:hover": { bgcolor: "#A0522D" },
+                "&:disabled": { bgcolor: "#D2B48C" },
+              }}
+            >
               {isLoading ? (
-                <Button
-                  loading
-                  loadingPosition="end"
-                  endIcon={<SaveIcon />}
-                  variant="contained"
-                  color="blue-600"
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  Submit
-                </Button>
+                <>
+                  <CircularProgress size={20} sx={{ mr: 2, color: "white" }} />
+                  Logging in...
+                </>
               ) : (
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  Submit
-                </button>
+                "Enter the Library"
               )}
-            </div>
-          </form>
-        </div>
-      </div>
-      {/* Bottom White Box */}
-      <div className="absolute bottom-0 left-0 right-0 bg-white p-4 shadow-lg">
-        <div className="text-center">
-          <div className="flex justify-center space-x-4 mt-2">
-            <p className="text-gray-700">Log in with</p>
-            <a href="#" className="text-gray-600 hover:text-gray-900">
+            </Button>
+          </Box>
+        </Paper>
+
+        {/* Footer */}
+        <Paper
+          elevation={3}
+          sx={{
+            mt: 2,
+            bgcolor: "white",
+            p: 3,
+            borderRadius: 2,
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="body2" sx={{ color: "#666" }}>
+            Log in with
+          </Typography>
+          <Box
+            sx={{ display: "flex", justifyContent: "center", gap: 2, my: 2 }}
+          >
+            <IconButton href="#" sx={{ p: 0 }}>
               <img
                 src="src/assets/images/flat-color-icons_google.png"
-                alt="google"
+                alt="Google"
+                style={{ width: 32, height: 32 }}
               />
-            </a>
-            <a href="#" className="text-gray-600 hover:text-gray-900">
-              <img src="src/assets/images/logos_facebook.png" alt="facebook" />
-            </a>
-            <a href="#" className="text-gray-600 hover:text-gray-900">
+            </IconButton>
+            <IconButton href="#" sx={{ p: 0 }}>
+              <img
+                src="src/assets/images/logos_facebook.png"
+                alt="Facebook"
+                style={{ width: 32, height: 32 }}
+              />
+            </IconButton>
+            <IconButton href="#" sx={{ p: 0 }}>
               <img
                 src="src/assets/images/ant-design_github-filled.png"
-                alt="github"
+                alt="GitHub"
+                style={{ width: 32, height: 32 }}
               />
+            </IconButton>
+          </Box>
+          <Typography variant="body2" sx={{ color: "#666" }}>
+            Not registered?{" "}
+            <a
+              href="/register"
+              style={{ color: "#8B4513", textDecoration: "none" }}
+              onMouseOver={(e) => (e.target.style.textDecoration = "underline")}
+              onMouseOut={(e) => (e.target.style.textDecoration = "none")}
+            >
+              Sign up
             </a>
-          </div>
-          <p className="mt-4 text-gray-600">
-            Not registered?
-            <a href="/register" className="text-blue-600 hover:text-blue-500">
-              {" "}
-              Sign up{" "}
-            </a>
-          </p>
-        </div>
-      </div>
-    </div>
+          </Typography>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 
