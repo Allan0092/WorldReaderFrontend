@@ -1,4 +1,52 @@
+import axios from "axios";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { storeAdminToken } from "../../../utils/authUtil";
+
 export default function AdminLoginPage() {
+  const [adminForm, setAdminForm] = useState({
+    email: "",
+    password: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    if (!isLoading) {
+      setAdminForm({
+        ...adminForm,
+        [e.target.name]: e.target.value,
+      });
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const response = await axios.post("http://localhost:5000/auth/login", {
+        email: adminForm.email,
+        password: adminForm.password,
+      });
+      storeAdminToken(response.data.token);
+      toast.success("login success");
+    } catch (error) {
+      console.log(error);
+      if (error.response?.data) {
+        toast.error(error.response.data);
+      } else if (error.status == 500) {
+        toast.error("Unable to connect to server");
+      } else if (error.status == 401) {
+        toast.error("Invalid email or password");
+      } else {
+        toast.error("Login Failed");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <>
       <div classNameName="relative mx-auto w-full max-w-md bg-white px-6 pt-10 pb-8 shadow-xl ring-1 ring-gray-900/5 sm:rounded-xl sm:px-10">
@@ -10,12 +58,15 @@ export default function AdminLoginPage() {
             </p>
           </div>
           <div className="mt-5">
-            <form action="">
+            <form onSubmit={handleSubmit}>
               <div className="relative mt-6">
                 <input
                   type="email"
                   name="email"
                   id="email"
+                  value={adminForm.email}
+                  onChange={handleChange}
+                  disabled={isLoading}
                   placeholder="Email Address"
                   className="peer mt-1 w-full border-b-2 border-gray-300 px-0 py-1 placeholder:text-transparent focus:border-gray-500 focus:outline-none"
                   autocomplete="NA"
@@ -32,6 +83,9 @@ export default function AdminLoginPage() {
                   type="password"
                   name="password"
                   id="password"
+                  value={adminForm.password}
+                  onChange={handleChange}
+                  disabled={isLoading}
                   placeholder="Password"
                   className="peer peer mt-1 w-full border-b-2 border-gray-300 px-0 py-1 placeholder:text-transparent focus:border-gray-500 focus:outline-none"
                 />
@@ -45,6 +99,7 @@ export default function AdminLoginPage() {
               <div className="my-6">
                 <button
                   type="submit"
+                  disabled={isLoading}
                   className="w-full rounded-md bg-black px-3 py-4 text-white focus:bg-gray-600 focus:outline-none"
                 >
                   Sign in
