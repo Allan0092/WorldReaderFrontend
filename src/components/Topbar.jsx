@@ -1,26 +1,39 @@
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
-import AppBar from "@mui/material/AppBar";
-import Avatar from "@mui/material/Avatar";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import IconButton from "@mui/material/IconButton";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import Toolbar from "@mui/material/Toolbar";
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
+import LoginIcon from "@mui/icons-material/Login";
+import LogoutIcon from "@mui/icons-material/Logout";
+import MapIcon from "@mui/icons-material/Map";
+import StoreIcon from "@mui/icons-material/Store";
+import {
+  AppBar,
+  Avatar,
+  Box,
+  Button,
+  IconButton,
+  Menu,
+  MenuItem,
+  Toolbar,
+  Tooltip,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { isTokenValid } from "../utils/authUtil";
 
 const Logo = styled("img")({
-  height: 40,
+  height: 48,
   width: "auto",
-  marginRight: "auto",
+  cursor: "pointer",
+  transition: "transform 0.2s",
+  "&:hover": {
+    transform: "scale(1.05)",
+  },
 });
 
 const logoImage = "src/assets/images/WorldReaderLogo.png";
-const userProfilePicture = "/path/to/profile/picture.jpg";
+const userProfilePicture = "/path/to/profile/picture.jpg"; // Update with real path or fetch dynamically
 
 function logout() {
   localStorage.removeItem("token");
@@ -33,89 +46,141 @@ function TopBar() {
 
   const handleMenu = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
+
   const handleClickSettings = () => {
     handleClose();
     navigate("/profile");
   };
+
   const handleLogout = () => {
     logout();
     handleClose();
+    navigate("/login");
   };
 
   const toggleDarkMode = () => {
-    setDark(!dark);
-    if (!dark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    setDark((prev) => !prev);
+    document.documentElement.classList.toggle("dark");
   };
 
   return (
-    <AppBar position="static">
-      <Toolbar>
+    <AppBar
+      position="sticky"
+      sx={{
+        bgcolor: "#8B4513", // SaddleBrown for a rich, bookish feel
+        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+      }}
+    >
+      <Toolbar sx={{ display: "flex", justifyContent: "space-between", py: 1 }}>
+        {/* Logo */}
         <Logo
           onClick={() => navigate("/home")}
           src={logoImage}
           alt="WorldReader Logo"
         />
+
+        {/* Navigation Buttons */}
         <Box
           sx={{
             display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
             gap: 2,
             flexGrow: 1,
+            justifyContent: "center",
           }}
         >
-          <Button onClick={() => navigate("/map")} color="inherit">
-            <h1 className="font-fondamento font-bold text-2xl">Map</h1>
+          <Button
+            color="inherit"
+            startIcon={<MapIcon />}
+            onClick={() => navigate("/map")}
+            sx={{
+              textTransform: "none",
+              fontFamily: "Georgia, serif",
+              fontSize: "1.1rem",
+              "&:hover": { bgcolor: "#A0522D" },
+            }}
+          >
+            Map
           </Button>
-          <Button color="inherit">
-            <h1 className="font-fondamento font-bold text-2xl">Library</h1>
+          <Button
+            color="inherit"
+            startIcon={<LibraryBooksIcon />}
+            onClick={() => navigate("/library")}
+            sx={{
+              textTransform: "none",
+              fontFamily: "Georgia, serif",
+              fontSize: "1.1rem",
+              "&:hover": { bgcolor: "#A0522D" },
+            }}
+          >
+            Library
           </Button>
-          <Button color="inherit">
-            <h1 className="font-fondamento font-bold text-2xl">Store</h1>
+          <Button
+            color="inherit"
+            startIcon={<StoreIcon />}
+            onClick={() => navigate("/store")}
+            sx={{
+              textTransform: "none",
+              fontFamily: "Georgia, serif",
+              fontSize: "1.1rem",
+              "&:hover": { bgcolor: "#A0522D" },
+            }}
+          >
+            Store
           </Button>
         </Box>
 
-        <Box sx={{ display: "flex", alignItems: "center", ml: 2 }}>
-          {/* Theme Toggle Button added at line 84 */}
-          <IconButton onClick={toggleDarkMode} color="inherit">
-            {dark ? <Brightness7Icon /> : <Brightness4Icon />}
-          </IconButton>
-
-          <IconButton
-            aria-label="account of current user"
-            aria-controls="menu-appbar"
-            aria-haspopup="true"
-            onClick={handleMenu}
-            color="inherit"
+        {/* User Actions */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {/* Dark Mode Toggle */}
+          <Tooltip
+            title={dark ? "Switch to Light Mode" : "Switch to Dark Mode"}
           >
-            <Avatar alt="User Profile" src={userProfilePicture} />
-          </IconButton>
+            <IconButton onClick={toggleDarkMode} color="inherit">
+              {dark ? <Brightness7Icon /> : <Brightness4Icon />}
+            </IconButton>
+          </Tooltip>
+
+          {/* User Menu */}
+          <Tooltip title="Account">
+            <IconButton
+              aria-label="account of current user"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleMenu}
+              color="inherit"
+            >
+              <Avatar
+                alt="User Profile"
+                src={userProfilePicture}
+                sx={{ width: 36, height: 36 }}
+              />
+            </IconButton>
+          </Tooltip>
           <Menu
             id="menu-appbar"
             anchorEl={anchorEl}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "right",
-            }}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
             keepMounted
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
             open={Boolean(anchorEl)}
             onClose={handleClose}
+            PaperProps={{
+              sx: { bgcolor: "#FFF8E7", color: "#8B4513" }, // Parchment-like menu
+            }}
           >
             {isTokenValid() ? (
-              <MenuItem onClick={handleClickSettings}>Settings</MenuItem>
-            ) : null}
-            {isTokenValid() ? (
-              <MenuItem onClick={handleLogout} sx={{ color: "red" }}>
-                Log Out
-              </MenuItem>
+              [
+                <MenuItem key="profile" onClick={handleClickSettings}>
+                  <AccountCircleIcon sx={{ mr: 1 }} /> Profile
+                </MenuItem>,
+                <MenuItem
+                  key="logout"
+                  onClick={handleLogout}
+                  sx={{ color: "#A0522D" }}
+                >
+                  <LogoutIcon sx={{ mr: 1 }} /> Log Out
+                </MenuItem>,
+              ]
             ) : (
               <MenuItem
                 onClick={() => {
@@ -123,7 +188,7 @@ function TopBar() {
                   navigate("/login");
                 }}
               >
-                Log In
+                <LoginIcon sx={{ mr: 1 }} /> Log In
               </MenuItem>
             )}
           </Menu>
