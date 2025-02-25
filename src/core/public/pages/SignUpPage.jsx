@@ -1,312 +1,369 @@
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import {
+  Box,
+  Button,
+  Checkbox,
+  CircularProgress,
+  Container,
+  FormControlLabel,
+  IconButton,
+  Paper,
+  TextField,
+  Typography,
+} from "@mui/material";
+import InputAdornment from "@mui/material/InputAdornment";
 import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const SignUpPage = () => {
-  const [first_name, setfirst_name] = useState("");
-  const [last_name, setlast_name] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [formData, setFormData] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [termsAgreed, setTermsAgreed] = useState(false);
   const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (password !== confirmPassword) {
+    if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords don't match");
       return;
     }
+    if (!termsAgreed) {
+      toast.error("Please agree to the terms and conditions");
+      return;
+    }
 
+    setIsLoading(true);
     try {
-      // console.log({email, password});
       const response = await axios.post("http://localhost:5000/api/user/", {
-        email,
-        password,
-        first_name,
-        last_name,
+        email: formData.email,
+        password: formData.password,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
       });
 
       if (response.status === 200 || response.status === 201) {
-        toast.success("Registration success");
+        toast.success("Welcome to WorldReader! Please log in.");
         navigate("/login");
-        return;
-      } else {
-        toast.error("Registration failed");
-        return;
       }
     } catch (e) {
-      console.log(e);
-      toast.error("Registration failed.");
-      return;
+      const errorMsg = e.response?.data || "Registration failed.";
+      toast.error(errorMsg);
+      console.error("Registration error:", e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="h-screen w-screen">
-      <div
-        className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center"
-        style={{
-          backgroundImage: `url('src/assets/images/loginSignupBg.png')`,
-        }}
-      >
-        <div className="flex-1 bg-blue-500 flex"></div>
-        {/* Transparent Box */}
-        <div className="flex-1 w-screen h-screen flex">
-          <div className="bg-white w-full bg-opacity-75 p-8 rounded-lg shadow-lg">
-            {/* Logo */}
-            <div className="flex justify-center mb-8">
-              <img
-                src="src\assets\images\WorldReaderLogo.png"
-                alt="World Reader Logo"
-                className="w-32 h-32"
+    <Box
+      sx={{
+        minHeight: "100vh",
+        backgroundImage: `url('src/assets/images/loginSignupBg.png')`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        py: 4,
+        position: "relative",
+      }}
+    >
+      <Container maxWidth="sm">
+        <Paper
+          elevation={6}
+          sx={{
+            bgcolor: "rgba(255, 245, 235, 0.9)", // Parchment-like overlay
+            p: 4,
+            borderRadius: 3,
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          {/* Logo */}
+          <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
+            <img
+              src="src/assets/images/WorldReaderLogo.png"
+              alt="WorldReader Logo"
+              style={{ width: 120, height: 120 }}
+            />
+          </Box>
+
+          {/* Title */}
+          <Typography
+            variant="h4"
+            align="center"
+            sx={{ fontFamily: "Georgia, serif", color: "#8B4513", mb: 2 }}
+          >
+            Join WorldReader
+          </Typography>
+          <Typography
+            variant="body2"
+            align="center"
+            sx={{ color: "#A0522D", mb: 4 }}
+          >
+            Create an account to dive into a world of stories
+          </Typography>
+
+          {/* Form */}
+          <Box component="form" onSubmit={handleSubmit} sx={{ spaceY: 3 }}>
+            <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
+              <TextField
+                fullWidth
+                id="first_name"
+                name="first_name"
+                label="First Name"
+                value={formData.first_name}
+                onChange={handleChange}
+                disabled={isLoading}
+                required
+                sx={{
+                  backgroundColor: "#FFF8E7",
+                  borderRadius: 2,
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: "#D2B48C" },
+                    "&:hover fieldset": { borderColor: "#A0522D" },
+                    "&.Mui-focused fieldset": { borderColor: "#8B4513" },
+                  },
+                }}
               />
-            </div>
-            <div>
-              <h1 className="mb-8 text-center text-2xl font-extrabold font-fondamentoItalic">
-                Create Account
-              </h1>
-            </div>
-            {/* Form */}
-            <form>
-              <div class="grid gap-6 mb-6 md:grid-cols-2">
-                <div>
-                  <label
-                    for="first_name"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    First name
-                  </label>
-                  <input
-                    type="text"
-                    id="first_name"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="John"
-                    required
-                  />
-                </div>
-                <div>
-                  <label
-                    for="last_name"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Last name
-                  </label>
-                  <input
-                    type="text"
-                    id="last_name"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="Doe"
-                    required
-                  />
-                </div>
-              </div>
-              <div class="mb-6">
-                <label
-                  for="email"
-                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Email address
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  placeholder="john.doe@company.com"
-                  required
+              <TextField
+                fullWidth
+                id="last_name"
+                name="last_name"
+                label="Last Name"
+                value={formData.last_name}
+                onChange={handleChange}
+                disabled={isLoading}
+                required
+                sx={{
+                  backgroundColor: "#FFF8E7",
+                  borderRadius: 2,
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: "#D2B48C" },
+                    "&:hover fieldset": { borderColor: "#A0522D" },
+                    "&.Mui-focused fieldset": { borderColor: "#8B4513" },
+                  },
+                }}
+              />
+            </Box>
+            <TextField
+              fullWidth
+              id="email"
+              name="email"
+              label="Email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              disabled={isLoading}
+              required
+              sx={{
+                mb: 3,
+                backgroundColor: "#FFF8E7",
+                borderRadius: 2,
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "#D2B48C" },
+                  "&:hover fieldset": { borderColor: "#A0522D" },
+                  "&.Mui-focused fieldset": { borderColor: "#8B4513" },
+                },
+              }}
+            />
+            <TextField
+              fullWidth
+              id="password"
+              name="password"
+              label="Password"
+              type={showPassword ? "text" : "password"}
+              value={formData.password}
+              onChange={handleChange}
+              disabled={isLoading}
+              required
+              sx={{
+                mb: 3,
+                backgroundColor: "#FFF8E7",
+                borderRadius: 2,
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "#D2B48C" },
+                  "&:hover fieldset": { borderColor: "#A0522D" },
+                  "&.Mui-focused fieldset": { borderColor: "#8B4513" },
+                },
+              }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                      disabled={isLoading}
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              fullWidth
+              id="confirmPassword"
+              name="confirmPassword"
+              label="Confirm Password"
+              type={showPassword ? "text" : "password"}
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              disabled={isLoading}
+              required
+              sx={{
+                mb: 3,
+                backgroundColor: "#FFF8E7",
+                borderRadius: 2,
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "#D2B48C" },
+                  "&:hover fieldset": { borderColor: "#A0522D" },
+                  "&.Mui-focused fieldset": { borderColor: "#8B4513" },
+                },
+              }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                      edge="end"
+                      disabled={isLoading}
+                    >
+                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={termsAgreed}
+                  onChange={(e) => setTermsAgreed(e.target.checked)}
+                  disabled={isLoading}
+                  sx={{
+                    color: "#D2B48C",
+                    "&.Mui-checked": { color: "#8B4513" },
+                  }}
                 />
-              </div>
-              <div class="mb-6">
-                <label
-                  for="password"
-                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Password
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  placeholder="•••••••••"
-                  required
-                />
-              </div>
-              <div class="mb-6">
-                <label
-                  for="confirm_password"
-                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Confirm password
-                </label>
-                <input
-                  type="password"
-                  id="confirm_password"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  placeholder="•••••••••"
-                  required
-                />
-              </div>
-              <div class="flex items-start mb-6">
-                <div class="flex items-center h-5">
-                  <input
-                    id="remember"
-                    type="checkbox"
-                    value=""
-                    class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800"
-                    required
-                  />
-                </div>
-                <label
-                  for="remember"
-                  class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                >
-                  I agree with the{" "}
+              }
+              label={
+                <Typography variant="body2" sx={{ color: "#666" }}>
+                  I agree to the{" "}
                   <a
                     href="#"
-                    class="text-blue-600 hover:underline dark:text-blue-500"
+                    style={{ color: "#8B4513", textDecoration: "underline" }}
                   >
                     terms and conditions
                   </a>
-                  .
-                </label>
-              </div>
-              <button
-                type="submit"
-                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-              >
-                Submit
-              </button>
-            </form>
+                </Typography>
+              }
+              sx={{ mb: 3 }}
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              disabled={isLoading}
+              sx={{
+                py: 1.5,
+                bgcolor: "#8B4513",
+                color: "white",
+                borderRadius: 2,
+                boxShadow: "0 4px 12px rgba(139, 69, 19, 0.3)",
+                "&:hover": { bgcolor: "#A0522D" },
+                "&:disabled": { bgcolor: "#D2B48C" },
+              }}
+            >
+              {isLoading ? (
+                <>
+                  <CircularProgress size={20} sx={{ mr: 2, color: "white" }} />
+                  Signing Up...
+                </>
+              ) : (
+                "Join the Library"
+              )}
+            </Button>
+          </Box>
+        </Paper>
 
-            {/* <form className="space-y-4" onSubmit={handleSubmit}>
-              <div>
-                <label
-                  htmlFor="firstName"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  First Name
-                </label>
-                <input
-                  type="firstName"
-                  id="firstName"
-                  name="firstName"
-                  value={first_name}
-                  onChange={(e) => setfirst_name(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="lastName"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Last Name
-                </label>
-                <input
-                  type="lastName"
-                  id="lastName"
-                  name="lastName"
-                  value={last_name}
-                  onChange={(e) => setlast_name(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Password
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="repeat-password"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Repeat Password
-                </label>
-                <input
-                  type="password"
-                  id="repeat-password"
-                  name="repeat-password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                Submit
-              </button>
-            </form> */}
-          </div>
-        </div>
-        {/* Bottom White Box */}
-      </div>
-
-      <div className="fixed bottom-0 left-0 right-0 bg-white p-4 shadow-lg">
-        <div className="text-center">
-          <div className="flex justify-center space-x-4 mt-2">
-            <p className="text-gray-700">Log in with</p>
-            <a href="#" className="text-gray-600 hover:text-gray-900">
+        {/* Footer */}
+        <Paper
+          elevation={3}
+          sx={{
+            mt: 2,
+            bgcolor: "white",
+            p: 3,
+            borderRadius: 2,
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="body2" sx={{ color: "#666" }}>
+            Sign up with
+          </Typography>
+          <Box
+            sx={{ display: "flex", justifyContent: "center", gap: 2, my: 2 }}
+          >
+            <IconButton href="#" sx={{ p: 0 }}>
               <img
                 src="src/assets/images/flat-color-icons_google.png"
-                alt="google"
+                alt="Google"
+                style={{ width: 32, height: 32 }}
               />
-            </a>
-            <a href="#" className="text-gray-600 hover:text-gray-900">
-              <img src="src/assets/images/logos_facebook.png" alt="facebook" />
-            </a>
-            <a href="#" className="text-gray-600 hover:text-gray-900">
+            </IconButton>
+            <IconButton href="#" sx={{ p: 0 }}>
+              <img
+                src="src/assets/images/logos_facebook.png"
+                alt="Facebook"
+                style={{ width: 32, height: 32 }}
+              />
+            </IconButton>
+            <IconButton href="#" sx={{ p: 0 }}>
               <img
                 src="src/assets/images/ant-design_github-filled.png"
-                alt="github"
+                alt="GitHub"
+                style={{ width: 32, height: 32 }}
               />
-            </a>
-          </div>
-          <p className="mt-4 text-gray-600">
+            </IconButton>
+          </Box>
+          <Typography variant="body2" sx={{ color: "#666" }}>
             Already registered?{" "}
-            <a href="/login" className="text-blue-600 hover:text-blue-500">
-              {" "}
-              Log in{" "}
+            <a
+              href="/login"
+              style={{ color: "#8B4513", textDecoration: "none" }}
+              onMouseOver={(e) => (e.target.style.textDecoration = "underline")}
+              onMouseOut={(e) => (e.target.style.textDecoration = "none")}
+            >
+              Log in
             </a>
-          </p>
-        </div>
-      </div>
-    </div>
+          </Typography>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
+
 export default SignUpPage;
