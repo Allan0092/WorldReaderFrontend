@@ -20,7 +20,7 @@ import {
 import { styled } from "@mui/material/styles";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { isTokenValid } from "../utils/authUtil";
+import { useAuth, useTheme } from "../App";
 
 const Logo = styled("img")({
   height: 48,
@@ -35,14 +35,15 @@ const Logo = styled("img")({
 const logoImage = "src/assets/images/WorldReaderLogo.png";
 const userProfilePicture = "/path/to/profile/picture.jpg"; // Update with real path or fetch dynamically
 
-function logout() {
-  localStorage.removeItem("token");
-}
+// function logout() {
+//   localStorage.removeItem("token");
+// }
 
 function TopBar() {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
-  const [dark, setDark] = useState(false);
+  const { isAuthenticated, logout } = useAuth();
+  const { darkMode, toggleDarkMode } = useTheme();
 
   const handleMenu = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
@@ -56,11 +57,6 @@ function TopBar() {
     logout();
     handleClose();
     navigate("/login");
-  };
-
-  const toggleDarkMode = () => {
-    setDark((prev) => !prev);
-    document.documentElement.classList.toggle("dark");
   };
 
   return (
@@ -133,10 +129,10 @@ function TopBar() {
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           {/* Dark Mode Toggle */}
           <Tooltip
-            title={dark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
           >
             <IconButton onClick={toggleDarkMode} color="inherit">
-              {dark ? <Brightness7Icon /> : <Brightness4Icon />}
+              {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
           </Tooltip>
 
@@ -168,7 +164,7 @@ function TopBar() {
               sx: { bgcolor: "#FFF8E7", color: "#8B4513" }, // Parchment-like menu
             }}
           >
-            {isTokenValid() ? (
+            {isAuthenticated ? (
               [
                 <MenuItem key="profile" onClick={handleClickSettings}>
                   <AccountCircleIcon sx={{ mr: 1 }} /> Profile

@@ -1,4 +1,12 @@
-import React, { lazy, Suspense } from "react";
+import axios from "axios";
+import React, {
+  createContext,
+  lazy,
+  Suspense,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import {
   createBrowserRouter,
   Navigate,
@@ -8,8 +16,13 @@ import {
 import { ToastContainer } from "react-toastify";
 import TopBar from "./components/Topbar";
 import ProfileSidebar from "./core/private/components/profileSidebar";
-import { isTokenValid } from "./utils/authUtil";
+import {
+  getCurrentUserDetails,
+  isTokenValid,
+  storeUserToken,
+} from "./utils/authUtil";
 
+// Lazy-loaded components
 const HomePage = lazy(() => import("./core/public/pages/HomePage"));
 const AboutPage = lazy(() => import("./core/public/pages/AboutPage"));
 const MapPage = lazy(() => import("./core/public/pages/MapPage"));
@@ -17,14 +30,104 @@ const LoginPage = lazy(() => import("./core/public/pages/LoginPage"));
 const SignUpPage = lazy(() => import("./core/public/pages/SignUpPage"));
 const ProfilePage = lazy(() => import("./core/private/pages/ProfilePage"));
 const UploadBookPage = lazy(() => import("./core/private/pages/uploadBook"));
-
-// Auth Lazy Loading
 const AdminLoginPage = lazy(() => import("./core/admin/pages/adminLoginPage"));
 const AdminDashboard = lazy(() => import("./core/admin/pages/dashboard"));
 
-// Simple PrivateRoute
+// Auth Context
+const AuthContext = createContext();
+
+const useAuth = () => useContext(AuthContext);
+
+const AuthProvider = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(isTokenValid());
+  const [user, setUser] = useState(null);
+
+  // Fetch user details on mount if authenticated
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (isTokenValid()) {
+        try {
+          const userDetails = await getCurrentUserDetails();
+          setUser(userDetails);
+          setIsAuthenticated(true);
+        } catch (error) {
+          console.error("Failed to fetch user details:", error);
+          setIsAuthenticated(false);
+          setUser(null);
+        }
+      }
+    };
+    fetchUser();
+  }, []);
+
+  // Login function
+  const login = async (email, password) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/user/login",
+        {
+          email,
+          password,
+        }
+      );
+      if (response.status === 200) {
+        const token = response.data.token;
+        storeUserToken(token); // Store token using authUtil
+        const userDetails = await getCurrentUserDetails(); // Fetch user details after login
+        setUser(userDetails);
+        setIsAuthenticated(true);
+        return true; // Success
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+      setIsAuthenticated(false);
+      setUser(null);
+      throw error.response?.data || "Login failed"; // Throw error for component to handle
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    setIsAuthenticated(false);
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+// Theme Context
+const ThemeContext = createContext();
+
+const useTheme = () => useContext(ThemeContext);
+
+const ThemeProvider = ({ children }) => {
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [darkMode]);
+
+  const toggleDarkMode = () => setDarkMode((prev) => !prev);
+
+  return (
+    <ThemeContext.Provider value={{ darkMode, toggleDarkMode }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
+// Updated PrivateRoute using AuthContext
 function PrivateRoute({ element }) {
-  return isTokenValid() ? element : <Navigate to="/login" />;
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? element : <Navigate to="/login" />;
 }
 
 const ProfileLayout = () => (
@@ -117,10 +220,7 @@ const privateRouter = [
     path: "/profile",
     element: <ProfileLayout />,
     children: [
-      {
-        index: true,
-        element: <Navigate to="user-settings" replace />,
-      },
+      { index: true, element: <Navigate to="user-settings" replace /> },
       {
         path: "user-settings",
         element: (
@@ -163,7 +263,6 @@ const adminRouter = [
   },
 ];
 
-// Combine routes
 const router = createBrowserRouter([
   ...publicRouter,
   ...privateRouter,
@@ -172,11 +271,21 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <>
-      <ToastContainer position="top-right" />
-      <RouterProvider router={router} />
-    </>
+    <AuthProvider>
+      <ThemeProvider>
+        <ToastContainer
+          position="top-right"
+          stacked
+          closeOnClick
+          newestOnTop
+          autoClose={800}
+        />
+        <RouterProvider router={router} />
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 
 export default App;
+
+export { useAuth, useTheme };

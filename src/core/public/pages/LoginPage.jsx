@@ -11,10 +11,10 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useAuth } from "../../../App"; // Adjust path as needed
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -24,30 +24,21 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
-    // await new Promise((resolve) => setTimeout(resolve, 5000));
+    setEmailError(false); // Reset errors on submit
+    setPasswordError(false);
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/user/login",
-        {
-          email,
-          password,
-        }
-      );
-
-      if (response.status === 200) {
-        const token = response.data.token;
-        localStorage.setItem("token", token);
-        toast.success("Welcome to WorldReader!");
-        navigate("/library"); // Redirect to library instead of "/"
-      }
-    } catch (e) {
-      const errorMsg = e.response?.data || "Login failed. Please try again.";
+      await login(email, password); // Use AuthContext login
+      toast.success("Welcome to WorldReader!");
+      navigate("/library");
+    } catch (error) {
+      const errorMsg =
+        typeof error === "string" ? error : "Login failed. Please try again.";
       toast.error(errorMsg);
       setEmailError(true);
       setPasswordError(true);
