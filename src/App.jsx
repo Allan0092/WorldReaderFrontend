@@ -14,8 +14,8 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import TopBar from "./components/Topbar";
 import ProfileSidebar from "./core/private/components/profileSidebar";
+import TopBar from "./core/public/components/Topbar";
 import {
   getCurrentUserDetails,
   isTokenValid,
@@ -25,9 +25,11 @@ import {
 // Lazy-loaded components
 const HomePage = lazy(() => import("./core/public/pages/HomePage"));
 const AboutPage = lazy(() => import("./core/public/pages/AboutPage"));
-const MapPage = lazy(() => import("./core/public/pages/MapPage"));
-const LoginPage = lazy(() => import("./core/public/pages/LoginPage"));
-const SignUpPage = lazy(() => import("./core/public/pages/SignUpPage"));
+const MapPage = lazy(() => import("./core/public/Map/MapPage"));
+const LoginPage = lazy(() => import("./core/public/Authentication/LoginPage"));
+const SignUpPage = lazy(() =>
+  import("./core/public/Authentication/SignUpPage")
+);
 const ProfilePage = lazy(() => import("./core/private/pages/ProfilePage"));
 const UploadBookPage = lazy(() => import("./core/private/pages/uploadBook"));
 const AdminLoginPage = lazy(() => import("./core/admin/pages/adminLoginPage"));

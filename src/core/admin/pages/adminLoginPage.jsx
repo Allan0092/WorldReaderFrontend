@@ -7,7 +7,7 @@ import { storeAdminToken } from "../../../utils/authUtil";
 export default function AdminLoginPage() {
   const [adminForm, setAdminForm] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null); // Added for better error handling
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   // Handle input changes
@@ -17,7 +17,7 @@ export default function AdminLoginPage() {
         ...prev,
         [e.target.name]: e.target.value,
       }));
-      setError(null); // Clear error on new input
+      setError(null);
     }
   };
 
@@ -35,7 +35,7 @@ export default function AdminLoginPage() {
 
       storeAdminToken(response.data.token);
       toast.success("Login successful!");
-      navigate("/admin/dashboard"); // Redirect to admin dashboard
+      navigate("/admin/dashboard");
     } catch (error) {
       const status = error.response?.status;
       let errorMessage = "Login failed. Please try again.";

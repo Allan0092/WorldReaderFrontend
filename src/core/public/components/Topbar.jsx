@@ -20,7 +20,7 @@ import {
 import { styled } from "@mui/material/styles";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth, useTheme } from "../App";
+import { useAuth, useTheme } from "../../../App";
 
 const Logo = styled("img")({
   height: 48,

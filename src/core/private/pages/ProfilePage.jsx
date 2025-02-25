@@ -12,10 +12,8 @@ import {
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import {
-  getCurrentToken,
-  getCurrentUserDetails,
-} from "../../../utils/authUtil";
+import { useAuth } from "../../../App"; // Adjust path as needed
+import { getCurrentToken } from "../../../utils/authUtil"; // Only need token for API calls
 
 function ProfilePage() {
   const [formData, setFormData] = useState({
@@ -27,24 +25,19 @@ function ProfilePage() {
   const [resetPassword, setResetPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const { user, logout } = useAuth(); // Use AuthContext for user data and logout
 
+  // Populate form with user data from AuthContext
   useEffect(() => {
-    const fetchUserDetails = async () => {
-      try {
-        const userDetails = await getCurrentUserDetails();
-        setFormData({
-          email: userDetails.email || "",
-          first_name: userDetails.first_name || "",
-          last_name: userDetails.last_name || "",
-          country: userDetails.country || "",
-        });
-      } catch (error) {
-        console.error("Failed to fetch user details", error);
-        toast.error("Could not load profile details");
-      }
-    };
-    fetchUserDetails();
-  }, []);
+    if (user) {
+      setFormData({
+        email: user.email || "",
+        first_name: user.first_name || "",
+        last_name: user.last_name || "",
+        country: user.country || "",
+      });
+    }
+  }, [user]);
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -94,7 +87,7 @@ function ProfilePage() {
       });
       if (response.status === 200) {
         toast.success("Account deleted successfully");
-        localStorage.removeItem("token"); // Logout user
+        logout(); // Use AuthContext logout instead of manual token removal
         window.location.href = "/login"; // Redirect to login
       }
     } catch (e) {
