@@ -18,6 +18,10 @@ const SignUpPage = lazy(() => import("./core/public/pages/SignUpPage"));
 const ProfilePage = lazy(() => import("./core/private/pages/ProfilePage"));
 const UploadBookPage = lazy(() => import("./core/private/pages/uploadBook"));
 
+// Auth Lazy Loading
+const AdminLoginPage = lazy(() => import("./core/admin/pages/adminLoginPage"));
+const AdminDashboard = lazy(() => import("./core/admin/pages/dashboard"));
+
 // Simple PrivateRoute
 function PrivateRoute({ element }) {
   return isTokenValid() ? element : <Navigate to="/login" />;
@@ -107,6 +111,7 @@ const publicRouter = [
   },
 ];
 
+// Private Routes
 const privateRouter = [
   {
     path: "/profile",
@@ -145,8 +150,25 @@ const privateRouter = [
   },
 ];
 
+// Admin Routes
+const adminRouter = [
+  {
+    path: "/admin",
+    element: (
+      <Suspense fallback={<div>Loading...</div>}>
+        <AdminLoginPage />
+      </Suspense>
+    ),
+    errorElement: <>error</>,
+  },
+];
+
 // Combine routes
-const router = createBrowserRouter([...publicRouter, ...privateRouter]);
+const router = createBrowserRouter([
+  ...publicRouter,
+  ...privateRouter,
+  ...adminRouter,
+]);
 
 function App() {
   return (
