@@ -1,16 +1,15 @@
-import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { storeAdminToken } from "../../../utils/authUtil";
+import { useAuth } from "../../../App"; // Adjust path as needed
 
 export default function AdminLoginPage() {
   const [adminForm, setAdminForm] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { adminLogin } = useAuth();
 
-  // Handle input changes
   const handleChange = (e) => {
     if (!isLoading) {
       setAdminForm((prev) => ({
@@ -21,48 +20,17 @@ export default function AdminLoginPage() {
     }
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
     try {
-      const response = await axios.post("http://localhost:5000/auth/login", {
-        email: adminForm.email,
-        password: adminForm.password,
-      });
-
-      storeAdminToken(response.data.token);
+      await adminLogin(adminForm.email, adminForm.password);
       toast.success("Login successful!");
       navigate("/admin/dashboard");
     } catch (error) {
-      const status = error.response?.status;
-      let errorMessage = "Login failed. Please try again.";
-
-      if (status) {
-        switch (status) {
-          case 400:
-            errorMessage = "Invalid request. Check your input.";
-            break;
-          case 401:
-            errorMessage = "Invalid email or password.";
-            break;
-          case 403:
-            errorMessage = "Access denied. Admins only.";
-            break;
-          case 500:
-            errorMessage = "Server error. Please try later.";
-            break;
-          default:
-            errorMessage = error.response?.data || "An error occurred.";
-        }
-      } else {
-        errorMessage = "Network error. Check your connection.";
-      }
-
-      setError(errorMessage);
-      toast.error(errorMessage);
+      toast.error(error.message);
       console.error("Login error:", error);
     } finally {
       setIsLoading(false);

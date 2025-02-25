@@ -18,7 +18,9 @@ import ProfileSidebar from "./core/private/components/profileSidebar";
 import TopBar from "./core/public/components/Topbar";
 import {
   getCurrentUserDetails,
+  isAdmin,
   isTokenValid,
+  storeAdminToken,
   storeUserToken,
 } from "./utils/authUtil";
 
@@ -33,7 +35,7 @@ const SignUpPage = lazy(() =>
 const ProfilePage = lazy(() => import("./core/private/pages/ProfilePage"));
 const UploadBookPage = lazy(() => import("./core/private/pages/uploadBook"));
 const AdminLoginPage = lazy(() => import("./core/admin/pages/adminLoginPage"));
-const AdminDashboard = lazy(() => import("./core/admin/pages/dashboard"));
+const AdminDashboard = lazy(() => import("./core/admin/pages/adminDashboard"));
 
 // Auth Context
 const AuthContext = createContext();
@@ -41,10 +43,11 @@ const AuthContext = createContext();
 const useAuth = () => useContext(AuthContext);
 
 const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(isTokenValid());
-  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(isTokenValid()); // Regular user
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(isAdmin()); // Admin user
+  const [user, setUser] = useState(null); // Regular user details
 
-  // Fetch user details on mount if authenticated
+  // Fetch user details on mount if regular user is authenticated
   useEffect(() => {
     const fetchUser = async () => {
       if (isTokenValid()) {
@@ -62,7 +65,7 @@ const AuthProvider = ({ children }) => {
     fetchUser();
   }, []);
 
-  // Login function
+  // Regular user login
   const login = async (email, password) => {
     try {
       const response = await axios.post(
@@ -74,17 +77,44 @@ const AuthProvider = ({ children }) => {
       );
       if (response.status === 200) {
         const token = response.data.token;
-        storeUserToken(token); // Store token using authUtil
-        const userDetails = await getCurrentUserDetails(); // Fetch user details after login
+        storeUserToken(token);
+        const userDetails = await getCurrentUserDetails();
         setUser(userDetails);
         setIsAuthenticated(true);
-        return true; // Success
+        return true;
       }
     } catch (error) {
       console.error("Login failed:", error);
       setIsAuthenticated(false);
       setUser(null);
-      throw error.response?.data || "Login failed"; // Throw error for component to handle
+      throw error.response?.data || "Login failed";
+    }
+  };
+
+  // Admin login
+  const adminLogin = async (email, password) => {
+    try {
+      const response = await axios.post("http://localhost:5000/auth/login", {
+        email,
+        password,
+      });
+      if (response.status === 200) {
+        const token = response.data.token;
+        const payload = JSON.parse(atob(token.split(".")[1]));
+
+        // Verify admin status
+        if (payload.role !== "Admin") {
+          throw new Error("Access denied. Admins only.");
+        }
+
+        storeAdminToken(token);
+        setIsAdminAuthenticated(true);
+        return true;
+      }
+    } catch (error) {
+      console.error("Admin login failed:", error);
+      setIsAdminAuthenticated(false);
+      throw error.response?.data || "Admin login failed";
     }
   };
 
@@ -94,8 +124,23 @@ const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const adminLogout = () => {
+    localStorage.removeItem("admin-token");
+    setIsAdminAuthenticated(false);
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        isAdminAuthenticated,
+        user,
+        login,
+        adminLogin,
+        logout,
+        adminLogout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -126,10 +171,16 @@ const ThemeProvider = ({ children }) => {
   );
 };
 
-// Updated PrivateRoute using AuthContext
+// PrivateRoute for regular users
 function PrivateRoute({ element }) {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? element : <Navigate to="/login" />;
+}
+
+// PrivateRoute for admin users
+function AdminPrivateRoute({ element }) {
+  const { isAdminAuthenticated } = useAuth();
+  return isAdminAuthenticated ? element : <Navigate to="/admin" />;
 }
 
 const ProfileLayout = () => (
@@ -216,7 +267,7 @@ const publicRouter = [
   },
 ];
 
-// Private Routes
+// Private Routes (Regular Users)
 const privateRouter = [
   {
     path: "/profile",
@@ -261,6 +312,20 @@ const adminRouter = [
         <AdminLoginPage />
       </Suspense>
     ),
+    children: [
+      {
+        path: "dashboard",
+        element: (
+          <AdminPrivateRoute
+            element={
+              <Suspense fallback={<div>Loading...</div>}>
+                <AdminDashboard />
+              </Suspense>
+            }
+          />
+        ),
+      },
+    ],
     errorElement: <>error</>,
   },
 ];

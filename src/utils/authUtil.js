@@ -1,6 +1,7 @@
 import axios from "axios";
 
 function isTokenValid(token = getCurrentToken()) {
+  // check if token is expired
   if (!token) return false;
   const payload = JSON.parse(atob(token.split(".")[1]));
   const expiry = payload.exp;
@@ -69,13 +70,14 @@ async function isAdmin() {
   const payload = JSON.parse(atob(token.split(".")[1]));
   const expiry = payload.exp;
   const now = Math.floor(Date.now() / 1000);
-  return now < expiry;
+  return now < expiry && payload.role === "Admin";
 }
 
 export {
   getAdminToken,
   getCurrentToken,
   getCurrentUserDetails,
+  isAdmin,
   isTokenValid,
   removeAdminToken,
   storeAdminToken,
