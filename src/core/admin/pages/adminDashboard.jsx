@@ -27,7 +27,7 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useQueryClient } from "@tanstack/react-query"; // Correct import
+import { useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -128,7 +128,6 @@ const AdminDashboard = () => {
       case "dashboard":
         return (
           <Grid container spacing={3}>
-            {/* Summary Cards */}
             <Grid item xs={12} sm={6}>
               <DashboardCard>
                 <CardContent>
@@ -232,8 +231,7 @@ const AdminDashboard = () => {
                     <TableRow key={book._id}>
                       <TableCell>{book._id}</TableCell>
                       <TableCell>{book.title}</TableCell>
-                      <TableCell>{book.author}</TableCell>{" "}
-                      {/* Author is an ID; replace with name if fetched */}
+                      <TableCell>{book.author}</TableCell>
                       <TableCell>
                         {book.verifiedStatus ? "Verified" : "Pending"}
                       </TableCell>
@@ -260,7 +258,7 @@ const AdminDashboard = () => {
           Admin Panel
         </Typography>
         <List>
-          <ListItem button={true} onClick={() => setActiveView("dashboard")}>
+          <ListItem button onClick={() => setActiveView("dashboard")}>
             <ListItemIcon sx={{ color: "#fff" }}>
               <DashboardIcon />
             </ListItemIcon>
