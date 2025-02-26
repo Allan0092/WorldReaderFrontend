@@ -63,6 +63,7 @@ const AdminDashboard = () => {
     data: users = [],
     isLoading: usersLoading,
     error: usersError,
+    refetch: refetchUsers,
   } = useGetAllUserList();
 
   // Fetch books using React Query
@@ -74,12 +75,28 @@ const AdminDashboard = () => {
 
   // Delete user mutation
   const { mutate: deleteUser, isLoading: deleteLoading } = useDeleteUser({
-    onSuccess: () => {
-      toast.success("User deleted successfully");
-      queryClient.invalidateQueries(["GET_ALL_USER_LIST"]);
+    onMutate: async (_id) => {
+      console.log("Deleting user with _id:", _id);
+      await queryClient.cancelQueries(["GET_ALL_USER_LIST"]);
+      const previousUsers = queryClient.getQueryData(["GET_ALL_USER_LIST"]);
+      queryClient.setQueryData(["GET_ALL_USER_LIST"], (old) =>
+        old ? old.filter((user) => user._id !== _id) : []
+      );
+      return { previousUsers };
     },
-    onError: (error) => {
+    onSuccess: (data) => {
+      console.log("Delete succeeded with response:", data);
+      toast.success("User deleted successfully");
+      refetchUsers(); // Force immediate refetch
+    },
+    onError: (error, _id, context) => {
+      console.error("Delete error:", error);
       toast.error(error.response?.data?.message || "Failed to delete user");
+      queryClient.setQueryData(["GET_ALL_USER_LIST"], context.previousUsers);
+    },
+    onSettled: () => {
+      console.log("Mutation settled, refetching users");
+      refetchUsers(); // Ensure sync with server
     },
   });
 
