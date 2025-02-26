@@ -9,7 +9,6 @@ import {
   Container,
   Grid,
   IconButton,
-  Paper,
   Table,
   TableBody,
   TableCell,
@@ -20,12 +19,12 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import axios from "axios";
-import React, { useEffect, useState } from "react";
+import { useQueryClient as useReactQueryClient } from "@tanstack/react-query"; // Correct import
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useAuth } from "../../App"; // Adjust path as needed
-import { getAdminToken } from "../../utils/authUtil"; // Adjust path as needed
+import { useAuth } from "../../../App"; // Adjust path as needed
+import { useDeleteUser, useGetAllUserList } from "../query"; // Adjust path to your query file
 
 // Styled components
 const DashboardCard = styled(Card)(({ theme }) => ({
@@ -35,59 +34,27 @@ const DashboardCard = styled(Card)(({ theme }) => ({
 }));
 
 const AdminDashboard = () => {
-  const [users, setUsers] = useState([]);
-  const [books, setBooks] = useState([]);
-  const [stats, setStats] = useState({ totalUsers: 0, totalBooks: 0 });
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const queryClient = useReactQueryClient(); // Use React Query's client
   const { isAdminAuthenticated, adminLogout } = useAuth();
 
-  // Fetch dashboard data on mount
-  useEffect(() => {
-    if (!isAdminAuthenticated) {
-      navigate("/admin");
-      return;
-    }
+  // Fetch users using React Query
+  const {
+    data: users = [],
+    isLoading: usersLoading,
+    error: usersError,
+  } = useGetAllUserList();
 
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        // Fetch users
-        const usersResponse = await axios.get(
-          "http://localhost:5000/api/admin/users",
-          {
-            headers: { Authorization: `Bearer ${getAdminToken()}` },
-          }
-        );
-        setUsers(usersResponse.data);
-
-        // Fetch books
-        const booksResponse = await axios.get(
-          "http://localhost:5000/api/admin/books",
-          {
-            headers: { Authorization: `Bearer ${getAdminToken()}` },
-          }
-        );
-        setBooks(booksResponse.data);
-
-        // Fetch stats
-        const statsResponse = await axios.get(
-          "http://localhost:5000/api/admin/stats",
-          {
-            headers: { Authorization: `Bearer ${getAdminToken()}` },
-          }
-        );
-        setStats(statsResponse.data);
-      } catch (error) {
-        console.error("Failed to fetch dashboard data:", error);
-        toast.error("Could not load dashboard data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [isAdminAuthenticated, navigate]);
+  // Delete user mutation
+  const { mutate: deleteUser, isLoading: deleteLoading } = useDeleteUser({
+    onSuccess: () => {
+      toast.success("User deleted successfully");
+      queryClient.invalidateQueries(["GET_ALL_USER_LIST"]); // Refetch users after deletion
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || "Failed to delete user");
+    },
+  });
 
   // Handle admin logout
   const handleLogout = () => {
@@ -96,40 +63,20 @@ const AdminDashboard = () => {
     navigate("/admin");
   };
 
-  // Handle user deletion (example action)
-  const handleDeleteUser = async (userId) => {
+  // Handle user deletion
+  const handleDeleteUser = (_id) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
-    try {
-      await axios.delete(`http://localhost:5000/api/admin/users/${userId}`, {
-        headers: { Authorization: `Bearer ${getAdminToken()}` },
-      });
-      setUsers(users.filter((user) => user.id !== userId));
-      toast.success("User deleted successfully");
-    } catch (error) {
-      toast.error("Failed to delete user");
-    }
+    deleteUser(_id); // Pass _id instead of id
   };
 
-  // Handle book approval (example action)
-  const handleApproveBook = async (bookId) => {
-    try {
-      await axios.put(
-        `http://localhost:5000/api/admin/books/${bookId}/approve`,
-        {},
-        { headers: { Authorization: `Bearer ${getAdminToken()}` } }
-      );
-      setBooks(
-        books.map((book) =>
-          book.id === bookId ? { ...book, approved: true } : book
-        )
-      );
-      toast.success("Book approved successfully");
-    } catch (error) {
-      toast.error("Failed to approve book");
-    }
-  };
+  // Redirect if not authenticated as admin
+  if (!isAdminAuthenticated) {
+    navigate("/admin");
+    return null;
+  }
 
-  if (loading) {
+  // Handle loading and error states
+  if (usersLoading) {
     return (
       <Box
         sx={{
@@ -142,6 +89,10 @@ const AdminDashboard = () => {
         <CircularProgress />
       </Box>
     );
+  }
+
+  if (usersError) {
+    toast.error("Failed to load user data");
   }
 
   return (
@@ -161,7 +112,7 @@ const AdminDashboard = () => {
       {/* Main Content */}
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Grid container spacing={3}>
-          {/* Stats Cards */}
+          {/* Stats Card */}
           <Grid item xs={12} sm={6}>
             <DashboardCard>
               <CardContent>
@@ -169,19 +120,7 @@ const AdminDashboard = () => {
                   Total Users
                 </Typography>
                 <Typography variant="h4" color="primary">
-                  {stats.totalUsers}
-                </Typography>
-              </CardContent>
-            </DashboardCard>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <DashboardCard>
-              <CardContent>
-                <Typography variant="h6" color="textSecondary">
-                  Total Books
-                </Typography>
-                <Typography variant="h4" color="primary">
-                  {stats.totalBooks}
+                  {users.length}
                 </Typography>
               </CardContent>
             </DashboardCard>
@@ -189,7 +128,7 @@ const AdminDashboard = () => {
 
           {/* User Management */}
           <Grid item xs={12}>
-            <Paper
+            <Card
               sx={{
                 p: 3,
                 borderRadius: 2,
@@ -211,18 +150,23 @@ const AdminDashboard = () => {
                   </TableHead>
                   <TableBody>
                     {users.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell>{user.id}</TableCell>
+                      <TableRow key={user._id}>
+                        <TableCell>{user._id}</TableCell>
                         <TableCell>{user.email}</TableCell>
-                        <TableCell>{`${user.first_name} ${user.last_name}`}</TableCell>
+                        <TableCell>
+                          {user.first_name && user.last_name
+                            ? `${user.first_name} ${user.last_name}`
+                            : "Name not provided"}
+                        </TableCell>
                         <TableCell>
                           <Button
                             variant="outlined"
                             color="error"
                             size="small"
-                            onClick={() => handleDeleteUser(user.id)}
+                            onClick={() => handleDeleteUser(user._id)}
+                            disabled={deleteLoading}
                           >
-                            Delete
+                            {deleteLoading ? "Deleting..." : "Delete"}
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -230,59 +174,7 @@ const AdminDashboard = () => {
                   </TableBody>
                 </Table>
               </TableContainer>
-            </Paper>
-          </Grid>
-
-          {/* Book Moderation */}
-          <Grid item xs={12}>
-            <Paper
-              sx={{
-                p: 3,
-                borderRadius: 2,
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-              }}
-            >
-              <Typography variant="h5" gutterBottom>
-                Book Moderation
-              </Typography>
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>ID</TableCell>
-                      <TableCell>Title</TableCell>
-                      <TableCell>Author</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {books.map((book) => (
-                      <TableRow key={book.id}>
-                        <TableCell>{book.id}</TableCell>
-                        <TableCell>{book.title}</TableCell>
-                        <TableCell>{book.author}</TableCell>
-                        <TableCell>
-                          {book.approved ? "Approved" : "Pending"}
-                        </TableCell>
-                        <TableCell>
-                          {!book.approved && (
-                            <Button
-                              variant="contained"
-                              color="success"
-                              size="small"
-                              onClick={() => handleApproveBook(book.id)}
-                            >
-                              Approve
-                            </Button>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
+            </Card>
           </Grid>
         </Grid>
       </Container>
