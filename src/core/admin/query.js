@@ -12,7 +12,7 @@ export const useGetAllUserList = () => {
           Authorization: `Bearer ${getAdminToken()}`,
         },
       });
-      return response.data; // Expecting array of users
+      return response.data;
     },
     enabled: !!getAdminToken(),
   });
@@ -23,11 +23,9 @@ export const useDeleteUser = () => {
   return useMutation({
     mutationKey: ["DELETE_USER"],
     mutationFn: async (_id) => {
-      // Use _id to match server data
       const response = await axios.delete(
         `http://localhost:5000/api/user/${_id}`,
         {
-          // Adjusted to match your endpoint
           headers: {
             Authorization: `Bearer ${getAdminToken()}`,
           },
@@ -54,5 +52,21 @@ export const useUpdateUser = () => {
       );
       return response.data;
     },
+  });
+};
+
+// Fetch all books
+export const useGetAllBooks = () => {
+  return useQuery({
+    queryKey: ["GET_ALL_BOOKS"],
+    queryFn: async () => {
+      const response = await axios.get("http://localhost:5000/api/book/", {
+        headers: {
+          Authorization: `Bearer ${getAdminToken()}`,
+        },
+      });
+      return response.data;
+    },
+    enabled: !!getAdminToken(),
   });
 };

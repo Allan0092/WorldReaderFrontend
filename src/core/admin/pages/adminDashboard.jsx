@@ -32,7 +32,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../../../App"; // Adjust path as needed
-import { useDeleteUser, useGetAllUserList } from "../query"; // Adjust path
+import { useDeleteUser, useGetAllBooks, useGetAllUserList } from "../query"; // Adjust path
 
 // Styled components
 const DashboardCard = styled(Card)(({ theme }) => ({
@@ -47,7 +47,7 @@ const Sidebar = styled(Drawer)(({ theme }) => ({
   "& .MuiDrawer-paper": {
     width: 240,
     boxSizing: "border-box",
-    backgroundColor: "#1a237e", // Deep indigo for sidebar
+    backgroundColor: "#1a237e",
     color: "#fff",
   },
 }));
@@ -56,7 +56,7 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isAdminAuthenticated, adminLogout } = useAuth();
-  const [activeView, setActiveView] = useState("dashboard"); // Track current view
+  const [activeView, setActiveView] = useState("dashboard");
 
   // Fetch users using React Query
   const {
@@ -64,6 +64,13 @@ const AdminDashboard = () => {
     isLoading: usersLoading,
     error: usersError,
   } = useGetAllUserList();
+
+  // Fetch books using React Query
+  const {
+    data: books = [],
+    isLoading: booksLoading,
+    error: booksError,
+  } = useGetAllBooks();
 
   // Delete user mutation
   const { mutate: deleteUser, isLoading: deleteLoading } = useDeleteUser({
@@ -75,12 +82,6 @@ const AdminDashboard = () => {
       toast.error(error.response?.data?.message || "Failed to delete user");
     },
   });
-
-  // Mock books data (replace with real query later)
-  const mockBooks = [
-    { _id: "1", title: "Book One", author: "Author A", approved: true },
-    { _id: "2", title: "Book Two", author: "Author B", approved: false },
-  ];
 
   // Handle admin logout
   const handleLogout = () => {
@@ -102,7 +103,7 @@ const AdminDashboard = () => {
   }
 
   // Handle loading state
-  if (usersLoading) {
+  if (usersLoading || booksLoading) {
     return (
       <Box
         sx={{
@@ -117,8 +118,8 @@ const AdminDashboard = () => {
     );
   }
 
-  if (usersError) {
-    toast.error("Failed to load user data");
+  if (usersError || booksError) {
+    toast.error("Failed to load data");
   }
 
   // Render content based on active view
@@ -147,7 +148,7 @@ const AdminDashboard = () => {
                     Total Books
                   </Typography>
                   <Typography variant="h4" color="primary">
-                    {mockBooks.length} {/* Replace with real data later */}
+                    {books.length}
                   </Typography>
                 </CardContent>
               </DashboardCard>
@@ -227,13 +228,14 @@ const AdminDashboard = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {mockBooks.map((book) => (
+                  {books.map((book) => (
                     <TableRow key={book._id}>
                       <TableCell>{book._id}</TableCell>
                       <TableCell>{book.title}</TableCell>
-                      <TableCell>{book.author}</TableCell>
+                      <TableCell>{book.author}</TableCell>{" "}
+                      {/* Author is an ID; replace with name if fetched */}
                       <TableCell>
-                        {book.approved ? "Approved" : "Pending"}
+                        {book.verifiedStatus ? "Verified" : "Pending"}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -258,7 +260,7 @@ const AdminDashboard = () => {
           Admin Panel
         </Typography>
         <List>
-          <ListItem button onClick={() => setActiveView("dashboard")}>
+          <ListItem button={true} onClick={() => setActiveView("dashboard")}>
             <ListItemIcon sx={{ color: "#fff" }}>
               <DashboardIcon />
             </ListItemIcon>
