@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
 import React, {
   createContext,
@@ -37,15 +38,25 @@ const UploadBookPage = lazy(() => import("./core/private/pages/uploadBook"));
 const AdminLoginPage = lazy(() => import("./core/admin/pages/adminLoginPage"));
 const AdminDashboard = lazy(() => import("./core/admin/pages/adminDashboard"));
 
+// Create a QueryClient instance
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1, // Retry failed queries once
+      staleTime: 5 * 60 * 1000, // 5 minutes stale time
+    },
+  },
+});
+
 // Auth Context
 const AuthContext = createContext();
 
 const useAuth = () => useContext(AuthContext);
 
 const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(isTokenValid()); // Regular user
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(isAdmin()); // Admin user
-  const [user, setUser] = useState(null); // Regular user details
+  const [isAuthenticated, setIsAuthenticated] = useState(isTokenValid());
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(isAdmin());
+  const [user, setUser] = useState(null);
 
   // Fetch user details on mount if regular user is authenticated
   useEffect(() => {
@@ -103,10 +114,9 @@ const AuthProvider = ({ children }) => {
         const payload = JSON.parse(atob(token.split(".")[1]));
 
         // Verify admin status
-        if (payload.role !== "Admin") {
+        if (payload.role.toLowerCase() !== "admin") {
           throw new Error("Access denied. Admins only.");
         }
-
         storeAdminToken(token);
         setIsAdminAuthenticated(true);
         return true;
@@ -192,6 +202,12 @@ const ProfileLayout = () => (
         <Outlet />
       </div>
     </div>
+  </>
+);
+
+const AdminLayout = () => (
+  <>
+    <Outlet />
   </>
 );
 
@@ -307,12 +323,16 @@ const privateRouter = [
 const adminRouter = [
   {
     path: "/admin",
-    element: (
-      <Suspense fallback={<div>Loading...</div>}>
-        <AdminLoginPage />
-      </Suspense>
-    ),
+    element: <AdminLayout />,
     children: [
+      {
+        index: true,
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <AdminLoginPage />
+          </Suspense>
+        ),
+      },
       {
         path: "dashboard",
         element: (
@@ -338,18 +358,20 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <ToastContainer
-          position="top-right"
-          stacked
-          closeOnClick
-          newestOnTop
-          autoClose={800}
-        />
-        <RouterProvider router={router} />
-      </ThemeProvider>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <ThemeProvider>
+          <ToastContainer
+            position="top-right"
+            stacked
+            closeOnClick
+            newestOnTop
+            autoClose={800}
+          />
+          <RouterProvider router={router} />
+        </ThemeProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
