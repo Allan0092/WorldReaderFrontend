@@ -29,6 +29,7 @@ import {
 const HomePage = lazy(() => import("./core/public/pages/HomePage"));
 const AboutPage = lazy(() => import("./core/public/pages/AboutPage"));
 const MapPage = lazy(() => import("./core/public/Map/MapPage"));
+const StorePage = lazy(() => import("./core/public/store/StorePage"));
 const LoginPage = lazy(() => import("./core/public/Authentication/LoginPage"));
 const SignUpPage = lazy(() =>
   import("./core/public/Authentication/SignUpPage")
@@ -251,6 +252,14 @@ const publicRouter = [
         element: (
           <Suspense fallback={<div>Loading...</div>}>
             <MapPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "store",
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <StorePage />
           </Suspense>
         ),
       },
