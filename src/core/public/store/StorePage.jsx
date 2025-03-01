@@ -8,17 +8,10 @@ import {
   Typography,
 } from "@mui/material";
 import React from "react";
-import { getCurrentToken } from "../../../utils/authUtil";
-import { useGetAllBooks } from "../../admin/query";
+import { useGetAllBooksPublic } from "../query";
 
 const StorePage = () => {
-  const { data: books = [], isLoading, error } = useGetAllBooks();
-
-  // Get current user's email for author display (temporary)
-  const token = getCurrentToken();
-  const userEmail = token
-    ? JSON.parse(atob(token.split(".")[1])).email
-    : "Unknown";
+  const { data: books = [], isLoading, error } = useGetAllBooksPublic();
 
   if (isLoading) {
     return <Box>Loading...</Box>;
@@ -57,10 +50,7 @@ const StorePage = () => {
                   {book.title}
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
-                  Author:{" "}
-                  {book.author === JSON.parse(atob(token.split(".")[1])).id
-                    ? userEmail
-                    : book.author}
+                  Author: {book.author}
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
                   Status: {book.verifiedStatus ? "Verified" : "Pending"}
