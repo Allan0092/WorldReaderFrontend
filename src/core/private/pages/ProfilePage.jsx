@@ -22,19 +22,23 @@ const ProfileWrapper = styled(Box)(({ theme, darkMode }) => ({
   background: darkMode
     ? "linear-gradient(180deg, #1C2526 0%, #2E2E2E 100%)"
     : "linear-gradient(180deg, #FFF8E7 0%, #F5F5F5 100%)",
-  width: "100%",
+  width: "100vw",
+  position: "absolute",
+  top: 0,
+  left: 0,
   display: "flex",
   flexDirection: "column",
+  alignItems: "center", // Center horizontally
+  justifyContent: "center", // Center vertically
 }));
 
 const ProfileContainer = styled(Container)(({ theme }) => ({
-  flex: 1,
-  paddingTop: theme.spacing(4),
-  paddingBottom: theme.spacing(4),
   width: "100%",
   maxWidth: "md",
   marginLeft: "auto",
   marginRight: "auto",
+  paddingTop: theme.spacing(4), // Add top padding
+  paddingBottom: theme.spacing(4), // Add bottom padding
 }));
 
 const ProfilePaper = styled(Paper)(({ theme, darkMode }) => ({
@@ -135,7 +139,6 @@ function ProfilePage() {
     <ProfileWrapper darkMode={darkMode}>
       <ProfileContainer>
         <ProfilePaper elevation={6} darkMode={darkMode}>
-          {/* Header */}
           <Typography
             variant="h4"
             align="center"
@@ -157,8 +160,6 @@ function ProfilePage() {
           >
             Update your profile details below
           </Typography>
-
-          {/* Form */}
           <Box component="form" onSubmit={handleSubmit} sx={{ spaceY: 3 }}>
             <TextField
               fullWidth

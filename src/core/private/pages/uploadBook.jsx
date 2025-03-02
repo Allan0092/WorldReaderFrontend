@@ -6,12 +6,12 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles"; // Add styled
+import { styled } from "@mui/material/styles";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useAuth, useTheme } from "../../../App"; // Add useTheme
+import { useAuth, useTheme } from "../../../App";
 import { getCurrentToken } from "../../../utils/authUtil";
 
 // Styled components
@@ -20,19 +20,23 @@ const UploadWrapper = styled(Box)(({ theme, darkMode }) => ({
   background: darkMode
     ? "linear-gradient(180deg, #1C2526 0%, #2E2E2E 100%)"
     : "linear-gradient(180deg, #FFF8E7 0%, #F5F5F5 100%)",
-  width: "100%",
+  width: "100vw",
+  position: "absolute",
+  top: 0,
+  left: 0,
   display: "flex",
   flexDirection: "column",
+  alignItems: "center", // Center horizontally
+  justifyContent: "center", // Center vertically
 }));
 
 const UploadContainer = styled(Container)(({ theme }) => ({
-  flex: 1,
-  paddingTop: theme.spacing(4),
-  paddingBottom: theme.spacing(4),
   width: "100%",
   maxWidth: "sm",
   marginLeft: "auto",
   marginRight: "auto",
+  paddingTop: theme.spacing(4), // Add top padding
+  paddingBottom: theme.spacing(4), // Add bottom padding
 }));
 
 const UploadBox = styled(Box)(({ theme, darkMode }) => ({
@@ -49,11 +53,11 @@ const UploadBox = styled(Box)(({ theme, darkMode }) => ({
 const UploadBookPage = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const { darkMode } = useTheme(); // Access darkMode
+  const { darkMode } = useTheme();
   const [formData, setFormData] = useState({
     title: "",
     isbn: "",
-    publicationDate: new Date().toISOString().split("T")[0], // Default to today
+    publicationDate: new Date().toISOString().split("T")[0],
     contentType: "PDF",
     author: "",
   });
@@ -140,7 +144,7 @@ const UploadBookPage = () => {
             align="center"
             sx={{
               fontFamily: "Georgia, serif",
-              color: darkMode ? "#D4A017" : "#8B4513", // Golden brown vs. saddle brown
+              color: darkMode ? "#D4A017" : "#8B4513",
               mb: 3,
             }}
           >
@@ -264,7 +268,7 @@ const UploadBookPage = () => {
               disabled={isLoading}
               sx={{
                 py: 1.5,
-                bgcolor: darkMode ? "#D4A017" : "#8B4513", // Golden brown vs. saddle brown
+                bgcolor: darkMode ? "#D4A017" : "#8B4513",
                 color: "white",
                 "&:hover": { bgcolor: darkMode ? "#A67C00" : "#A0522D" },
                 "&:disabled": { bgcolor: darkMode ? "#5D4037" : "#D2B48C" },
