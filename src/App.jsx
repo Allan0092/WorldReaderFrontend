@@ -29,6 +29,8 @@ import {
 const HomePage = lazy(() => import("./core/public/pages/HomePage"));
 const AboutPage = lazy(() => import("./core/public/pages/AboutPage"));
 const MapPage = lazy(() => import("./core/public/Map/MapPage"));
+const StorePage = lazy(() => import("./core/public/store/StorePage"));
+const LibraryPage = lazy(() => import("./core/public/library/LibraryPage")); // New
 const LoginPage = lazy(() => import("./core/public/Authentication/LoginPage"));
 const SignUpPage = lazy(() =>
   import("./core/public/Authentication/SignUpPage")
@@ -42,8 +44,8 @@ const AdminDashboard = lazy(() => import("./core/admin/pages/adminDashboard"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1, // Retry failed queries once
-      staleTime: 5 * 60 * 1000, // 5 minutes stale time
+      retry: 1,
+      staleTime: 5 * 60 * 1000,
     },
   },
 });
@@ -58,7 +60,6 @@ const AuthProvider = ({ children }) => {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(isAdmin());
   const [user, setUser] = useState(null);
 
-  // Fetch user details on mount if regular user is authenticated
   useEffect(() => {
     const fetchUser = async () => {
       if (isTokenValid()) {
@@ -76,7 +77,6 @@ const AuthProvider = ({ children }) => {
     fetchUser();
   }, []);
 
-  // Regular user login
   const login = async (email, password) => {
     try {
       const response = await axios.post(
@@ -102,7 +102,6 @@ const AuthProvider = ({ children }) => {
     }
   };
 
-  // Admin login
   const adminLogin = async (email, password) => {
     try {
       const response = await axios.post("http://localhost:5000/auth/login", {
@@ -112,8 +111,6 @@ const AuthProvider = ({ children }) => {
       if (response.status === 200) {
         const token = response.data.token;
         const payload = JSON.parse(atob(token.split(".")[1]));
-
-        // Verify admin status
         if (payload.role.toLowerCase() !== "admin") {
           throw new Error("Access denied. Admins only.");
         }
@@ -251,6 +248,22 @@ const publicRouter = [
         element: (
           <Suspense fallback={<div>Loading...</div>}>
             <MapPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "store",
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <StorePage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "library", // New route
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <LibraryPage />
           </Suspense>
         ),
       },

@@ -70,3 +70,21 @@ export const useGetAllBooks = () => {
     enabled: !!getAdminToken(),
   });
 };
+
+// Delete a book
+export const useDeleteBook = () => {
+  return useMutation({
+    mutationKey: ["DELETE_BOOK"],
+    mutationFn: async (_id) => {
+      const response = await axios.delete(
+        `http://localhost:5000/api/book/${_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${getAdminToken()}`,
+          },
+        }
+      );
+      return response.data;
+    },
+  });
+};

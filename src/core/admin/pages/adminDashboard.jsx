@@ -31,8 +31,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useAuth } from "../../../App"; // Adjust path as needed
-import { useDeleteUser, useGetAllBooks, useGetAllUserList } from "../query"; // Adjust path
+import { useAuth } from "../../../App";
+import {
+  useDeleteBook,
+  useDeleteUser,
+  useGetAllBooks,
+  useGetAllUserList,
+} from "../query";
 
 // Styled components
 const DashboardCard = styled(Card)(({ theme }) => ({
@@ -71,10 +76,11 @@ const AdminDashboard = () => {
     data: books = [],
     isLoading: booksLoading,
     error: booksError,
+    refetch: refetchBooks,
   } = useGetAllBooks();
 
   // Delete user mutation
-  const { mutate: deleteUser, isLoading: deleteLoading } = useDeleteUser({
+  const { mutate: deleteUser, isLoading: deleteUserLoading } = useDeleteUser({
     onMutate: async (_id) => {
       console.log("Deleting user with _id:", _id);
       await queryClient.cancelQueries(["GET_ALL_USER_LIST"]);
@@ -84,19 +90,46 @@ const AdminDashboard = () => {
       );
       return { previousUsers };
     },
-    onSuccess: (data) => {
-      console.log("Delete succeeded with response:", data);
+    onSuccess: () => {
+      console.log("User delete succeeded");
       toast.success("User deleted successfully");
-      refetchUsers(); // Force immediate refetch
+      refetchUsers();
     },
     onError: (error, _id, context) => {
-      console.error("Delete error:", error);
+      console.error("User delete error:", error);
       toast.error(error.response?.data?.message || "Failed to delete user");
       queryClient.setQueryData(["GET_ALL_USER_LIST"], context.previousUsers);
     },
     onSettled: () => {
-      console.log("Mutation settled, refetching users");
-      refetchUsers(); // Ensure sync with server
+      console.log("User mutation settled, refetching users");
+      refetchUsers();
+    },
+  });
+
+  // Delete book mutation
+  const { mutate: deleteBook, isLoading: deleteBookLoading } = useDeleteBook({
+    onMutate: async (_id) => {
+      console.log("Deleting book with _id:", _id);
+      await queryClient.cancelQueries(["GET_ALL_BOOKS"]);
+      const previousBooks = queryClient.getQueryData(["GET_ALL_BOOKS"]);
+      queryClient.setQueryData(["GET_ALL_BOOKS"], (old) =>
+        old ? old.filter((book) => book._id !== _id) : []
+      );
+      return { previousBooks };
+    },
+    onSuccess: () => {
+      console.log("Book delete succeeded");
+      toast.success("Book deleted successfully");
+      refetchBooks();
+    },
+    onError: (error, _id, context) => {
+      console.error("Book delete error:", error);
+      toast.error(error.response?.data?.message || "Failed to delete book");
+      queryClient.setQueryData(["GET_ALL_BOOKS"], context.previousBooks);
+    },
+    onSettled: () => {
+      console.log("Book mutation settled, refetching books");
+      refetchBooks();
     },
   });
 
@@ -111,6 +144,12 @@ const AdminDashboard = () => {
   const handleDeleteUser = (_id) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
     deleteUser(_id);
+  };
+
+  // Handle book deletion
+  const handleDeleteBook = (_id) => {
+    if (!window.confirm("Are you sure you want to delete this book?")) return;
+    deleteBook(_id);
   };
 
   // Redirect if not authenticated as admin
@@ -209,9 +248,9 @@ const AdminDashboard = () => {
                           color="error"
                           size="small"
                           onClick={() => handleDeleteUser(user._id)}
-                          disabled={deleteLoading}
+                          disabled={deleteUserLoading}
                         >
-                          {deleteLoading ? "Deleting..." : "Delete"}
+                          {deleteUserLoading ? "Deleting..." : "Delete"}
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -241,6 +280,7 @@ const AdminDashboard = () => {
                     <TableCell>Title</TableCell>
                     <TableCell>Author</TableCell>
                     <TableCell>Status</TableCell>
+                    <TableCell>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -251,6 +291,17 @@ const AdminDashboard = () => {
                       <TableCell>{book.author}</TableCell>
                       <TableCell>
                         {book.verifiedStatus ? "Verified" : "Pending"}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          size="small"
+                          onClick={() => handleDeleteBook(book._id)}
+                          disabled={deleteBookLoading}
+                        >
+                          {deleteBookLoading ? "Deleting..." : "Delete"}
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}

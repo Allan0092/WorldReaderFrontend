@@ -1,25 +1,53 @@
 import {
   Box,
   Button,
+  CircularProgress,
   Container,
-  FormControl,
-  FormLabel,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Select,
   TextField,
   Typography,
 } from "@mui/material";
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useAuth } from "../../../App"; // Adjust path
+import { getCurrentToken } from "../../../utils/authUtil"; // Adjust path
 
-export default function UploadBookPage() {
-  const [title, setTitle] = useState("");
-  const [isbn, setIsbn] = useState("");
-  const [contentType, setContentType] = useState("");
+const UploadBookPage = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const [formData, setFormData] = useState({
+    title: "",
+    isbn: "",
+    publicationDate: new Date().toISOString().split("T")[0], // Default to today
+    contentType: "PDF",
+    author: "", // Will be set from token
+  });
   const [file, setFile] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Set author from token on mount
+  useEffect(() => {
+    const token = getCurrentToken();
+    if (token) {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      setFormData((prev) => ({ ...prev, author: payload.id || payload.sub })); // Adjust based on your token payload
+    }
+  }, []);
+
+  // Redirect if not authenticated
+  if (!isAuthenticated) {
+    navigate("/login");
+    return null;
+  }
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -27,113 +55,130 @@ export default function UploadBookPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !contentType || !file) {
-      toast.error(
-        "Please fill all required fields (title, content type, file)."
-      );
+    if (!file) {
+      toast.error("Please select a PDF file to upload");
+      return;
+    }
+    if (!formData.title) {
+      toast.error("Title is required");
+      return;
+    }
+    if (!formData.author) {
+      toast.error("Author could not be determined");
       return;
     }
 
-    try {
-      const formData = new FormData();
-      formData.append("title", title);
-      formData.append("isbn", isbn);
-      formData.append("contentType", contentType);
-      formData.append("file", file);
+    setIsLoading(true);
+    const uploadData = new FormData();
+    uploadData.append("title", formData.title);
+    uploadData.append("isbn", formData.isbn);
+    uploadData.append("publicationDate", formData.publicationDate);
+    uploadData.append("contentType", formData.contentType);
+    uploadData.append("author", formData.author);
+    uploadData.append("file", file);
 
-      // Adjust the endpoint to match your server
+    try {
       const response = await axios.post(
-        "http://localhost:5000/api/books/upload",
-        formData,
+        "http://localhost:5000/api/book/",
+        uploadData,
         {
           headers: {
+            Authorization: `Bearer ${getCurrentToken()}`,
             "Content-Type": "multipart/form-data",
           },
         }
       );
-
-      if (response.status === 201) {
-        toast.success("Book uploaded successfully!");
-        setTitle("");
-        setIsbn("");
-        setContentType("");
-        setFile(null);
-      } else {
-        toast.error("Book upload failed!");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error(err.response?.data?.message || "An error occurred.");
+      console.log("Upload response:", response.data);
+      toast.success("Book uploaded successfully!");
+      navigate("/profile/user-settings");
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error(error.response?.data?.message || "Failed to upload book");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Upload Book
-      </Typography>
+    <Container maxWidth="sm" sx={{ py: 4 }}>
       <Box
-        component="form"
-        onSubmit={handleSubmit}
         sx={{
-          mt: 2,
-          display: "flex",
-          flexDirection: "column",
-          gap: 2,
+          bgcolor: "rgba(255, 245, 235, 0.95)",
+          p: 4,
+          borderRadius: 3,
+          boxShadow: "0 4px 12px rgba(139, 69, 19, 0.1)",
         }}
       >
-        <TextField
-          label="Title"
-          variant="outlined"
-          required
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          fullWidth
-        />
-        <TextField
-          label="ISBN"
-          variant="outlined"
-          value={isbn}
-          onChange={(e) => setIsbn(e.target.value)}
-          fullWidth
-        />
-        <FormControl required variant="outlined" fullWidth>
-          <InputLabel id="content-type-label">Content Type</InputLabel>
-          <Select
-            labelId="content-type-label"
-            label="Content Type *"
-            value={contentType}
-            onChange={(e) => setContentType(e.target.value)}
-          >
-            <MenuItem value="PDF">PDF</MenuItem>
-            <MenuItem value="ePub">ePub</MenuItem>
-          </Select>
-        </FormControl>
-        <FormControl required>
-          <FormLabel>File Upload</FormLabel>
-          <Button variant="contained" component="label">
-            Choose File
+        <Typography
+          variant="h4"
+          align="center"
+          sx={{ fontFamily: "Georgia, serif", color: "#8B4513", mb: 3 }}
+        >
+          Upload a Book
+        </Typography>
+        <form onSubmit={handleSubmit}>
+          <TextField
+            fullWidth
+            label="Title"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            disabled={isLoading}
+            required
+            sx={{ mb: 3, backgroundColor: "#FFF8E7" }}
+          />
+          <TextField
+            fullWidth
+            label="ISBN"
+            name="isbn"
+            value={formData.isbn}
+            onChange={handleChange}
+            disabled={isLoading}
+            sx={{ mb: 3, backgroundColor: "#FFF8E7" }}
+          />
+          <TextField
+            fullWidth
+            label="Publication Date"
+            name="publicationDate"
+            type="date"
+            value={formData.publicationDate}
+            onChange={handleChange}
+            disabled={isLoading}
+            InputLabelProps={{ shrink: true }}
+            sx={{ mb: 3, backgroundColor: "#FFF8E7" }}
+          />
+          <Box sx={{ mb: 3 }}>
             <input
               type="file"
-              accept=".pdf, .epub"
-              hidden
+              accept=".pdf"
               onChange={handleFileChange}
+              disabled={isLoading}
+              style={{ display: "block", width: "100%" }}
             />
+          </Box>
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            disabled={isLoading}
+            sx={{
+              py: 1.5,
+              bgcolor: "#8B4513",
+              color: "white",
+              "&:hover": { bgcolor: "#A0522D" },
+              "&:disabled": { bgcolor: "#D2B48C" },
+            }}
+          >
+            {isLoading ? (
+              <CircularProgress size={20} sx={{ color: "white" }} />
+            ) : (
+              "Upload Book"
+            )}
           </Button>
-          {file && (
-            <Typography variant="body2" sx={{ mt: 1 }}>
-              Selected: {file.name}
-            </Typography>
-          )}
-        </FormControl>
-        <Grid container justifyContent="flex-end">
-          <Grid item>
-            <Button type="submit" variant="contained">
-              Upload
-            </Button>
-          </Grid>
-        </Grid>
+        </form>
       </Box>
     </Container>
   );
-}
+};
+
+export default UploadBookPage;
