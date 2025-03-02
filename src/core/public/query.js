@@ -10,3 +10,13 @@ export const useGetAllBooksPublic = () => {
     },
   });
 };
+
+export const useGetBooksForMap = () => {
+  return useQuery({
+    queryKey: ["BOOKS_FOR_MAP"],
+    queryFn: async () => {
+      const response = await axios.get("http://localhost:5000/api/book/map");
+      return response.data;
+    },
+  });
+};
