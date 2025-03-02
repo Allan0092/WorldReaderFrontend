@@ -32,7 +32,7 @@ const Logo = styled("img")({
   },
 });
 
-const logoImage = "src/assets/images/WorldReaderLogo.png";
+const logoImage = "/WorldReaderLogo.png";
 const userProfilePicture = "/path/to/profile/picture.jpg";
 
 // function logout() {

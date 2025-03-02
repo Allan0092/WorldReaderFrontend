@@ -1,3 +1,5 @@
+import { Box, Typography } from "@mui/material"; // Add Typography
+import { styled } from "@mui/material/styles"; // Add styled
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
 import React, {
@@ -30,7 +32,7 @@ const HomePage = lazy(() => import("./core/public/pages/HomePage"));
 const AboutPage = lazy(() => import("./core/public/pages/AboutPage"));
 const MapPage = lazy(() => import("./core/public/Map/MapPage"));
 const StorePage = lazy(() => import("./core/public/store/StorePage"));
-const LibraryPage = lazy(() => import("./core/public/library/LibraryPage")); // New
+const LibraryPage = lazy(() => import("./core/public/library/LibraryPage"));
 const LoginPage = lazy(() => import("./core/public/Authentication/LoginPage"));
 const SignUpPage = lazy(() =>
   import("./core/public/Authentication/SignUpPage")
@@ -40,7 +42,6 @@ const UploadBookPage = lazy(() => import("./core/private/pages/uploadBook"));
 const AdminLoginPage = lazy(() => import("./core/admin/pages/adminLoginPage"));
 const AdminDashboard = lazy(() => import("./core/admin/pages/adminDashboard"));
 
-// Create a QueryClient instance
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -52,7 +53,6 @@ const queryClient = new QueryClient({
 
 // Auth Context
 const AuthContext = createContext();
-
 const useAuth = () => useContext(AuthContext);
 
 const AuthProvider = ({ children }) => {
@@ -155,7 +155,6 @@ const AuthProvider = ({ children }) => {
 
 // Theme Context
 const ThemeContext = createContext();
-
 const useTheme = () => useContext(ThemeContext);
 
 const ThemeProvider = ({ children }) => {
@@ -190,34 +189,58 @@ function AdminPrivateRoute({ element }) {
   return isAdminAuthenticated ? element : <Navigate to="/admin" />;
 }
 
+// Styled Footer
+const Footer = styled(Box)(({ theme }) => ({
+  textAlign: "center",
+  padding: theme.spacing(4),
+  backgroundColor: "#8B4513",
+  color: "white",
+  borderRadius: theme.shape.borderRadius * 2,
+  width: "100%",
+}));
+
 const ProfileLayout = () => (
-  <>
+  <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
     <TopBar />
-    <div className="flex">
+    <Box sx={{ display: "flex", flex: 1 }}>
       <ProfileSidebar />
-      <div className="flex-1 ml-64 p-4">
+      <Box sx={{ flex: 1, ml: "240px", p: 2 }}>
         <Outlet />
-      </div>
-    </div>
-  </>
+      </Box>
+    </Box>
+    <Footer>
+      <Typography variant="body2" sx={{ fontFamily: "Georgia, serif" }}>
+        © {new Date().getFullYear()} WorldReader. All rights reserved.
+      </Typography>
+    </Footer>
+  </Box>
 );
 
 const AdminLayout = () => (
-  <>
+  <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
     <Outlet />
-  </>
+  </Box>
+);
+
+const PublicLayout = () => (
+  <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+    <TopBar />
+    <Box sx={{ flex: 1 }}>
+      <Outlet />
+    </Box>
+    <Footer>
+      <Typography variant="body2" sx={{ fontFamily: "Georgia, serif" }}>
+        © {new Date().getFullYear()} WorldReader. All rights reserved.
+      </Typography>
+    </Footer>
+  </Box>
 );
 
 // Public Routes
 const publicRouter = [
   {
     path: "/",
-    element: (
-      <>
-        <TopBar />
-        <Outlet />
-      </>
-    ),
+    element: <PublicLayout />,
     children: [
       {
         index: true,
@@ -260,7 +283,7 @@ const publicRouter = [
         ),
       },
       {
-        path: "library", // New route
+        path: "library",
         element: (
           <Suspense fallback={<div>Loading...</div>}>
             <LibraryPage />
@@ -381,7 +404,15 @@ function App() {
             newestOnTop
             autoClose={800}
           />
-          <RouterProvider router={router} />
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              minHeight: "100vh",
+            }}
+          >
+            <RouterProvider router={router} />
+          </Box>
         </ThemeProvider>
       </AuthProvider>
     </QueryClientProvider>

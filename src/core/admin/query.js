@@ -36,14 +36,13 @@ export const useDeleteUser = () => {
   });
 };
 
-// Update a user (included for completeness, not used in dashboard yet)
 export const useUpdateUser = () => {
   return useMutation({
     mutationKey: ["UPDATE_USER"],
-    mutationFn: async (data) => {
-      const response = await axios.post(
-        "http://localhost:5000/api/user/update/",
-        data,
+    mutationFn: async ({ userId, updates }) => {
+      const response = await axios.put(
+        `http://localhost:5000/api/user/${userId}`,
+        updates,
         {
           headers: {
             Authorization: `Bearer ${getAdminToken()}`,

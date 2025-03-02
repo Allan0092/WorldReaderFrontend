@@ -1,3 +1,4 @@
+import VerifiedIcon from "@mui/icons-material/Verified"; // Add this import
 import {
   Box,
   Button,
@@ -8,6 +9,7 @@ import {
   Grid,
   Typography,
 } from "@mui/material";
+import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import { toast } from "react-toastify";
 import { useAuth } from "../../../App";
@@ -16,6 +18,7 @@ import { useAddToLibrary } from "../../private/query";
 import { useGetAllBooksPublic } from "../query";
 
 const StorePage = () => {
+  const queryClient = useQueryClient();
   const { data: books = [], isLoading, error } = useGetAllBooksPublic();
   const { isAuthenticated, user } = useAuth();
   const { mutate: addToLibrary, isLoading: addLoading } = useAddToLibrary();
@@ -26,14 +29,28 @@ const StorePage = () => {
       return;
     }
 
-    const userId = user
-      ? user.id
-      : JSON.parse(atob(getCurrentToken().split(".")[1])).id;
-    console.log("userId:", userId, "bookId:", bookId);
+    const token = getCurrentToken();
+    if (!token) {
+      toast.error("No authentication token found");
+      return;
+    }
+
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const userId = user?.id || payload.id || payload.sub;
+    console.log("Adding to library - userId:", userId, "bookId:", bookId);
+
+    if (!userId) {
+      toast.error("Unable to determine user ID");
+      return;
+    }
+
     addToLibrary(
       { userId, bookId },
       {
-        onSuccess: () => toast.success("Book added to library!"),
+        onSuccess: () => {
+          toast.success("Book added to library!");
+          queryClient.invalidateQueries(["USER_LIBRARY", userId]);
+        },
         onError: (error) =>
           toast.error(error.response?.data?.message || "Failed to add book"),
       }
@@ -101,8 +118,17 @@ const StorePage = () => {
                 <Typography variant="h6" sx={{ color: "#8B4513" }}>
                   {book.title}
                 </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Author: {book.author}
+                <Typography
+                  variant="body2"
+                  color="textSecondary"
+                  sx={{ display: "flex", alignItems: "center" }}
+                >
+                  Author: {book.author}{" "}
+                  {book.verifiedStatus && (
+                    <VerifiedIcon
+                      sx={{ color: "#1DA1F2", fontSize: 16, ml: 1 }}
+                    />
+                  )}
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
                   Status: {book.verifiedStatus ? "Verified" : "Pending"}
