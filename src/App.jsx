@@ -1,4 +1,5 @@
-import { Box } from "@mui/material"; // Add this import
+import { Box, Typography } from "@mui/material"; // Add Typography
+import { styled } from "@mui/material/styles"; // Add styled
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
 import React, {
@@ -188,6 +189,16 @@ function AdminPrivateRoute({ element }) {
   return isAdminAuthenticated ? element : <Navigate to="/admin" />;
 }
 
+// Styled Footer
+const Footer = styled(Box)(({ theme }) => ({
+  textAlign: "center",
+  padding: theme.spacing(4),
+  backgroundColor: "#8B4513",
+  color: "white",
+  borderRadius: theme.shape.borderRadius * 2,
+  width: "100%",
+}));
+
 const ProfileLayout = () => (
   <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
     <TopBar />
@@ -197,6 +208,11 @@ const ProfileLayout = () => (
         <Outlet />
       </Box>
     </Box>
+    <Footer>
+      <Typography variant="body2" sx={{ fontFamily: "Georgia, serif" }}>
+        © {new Date().getFullYear()} WorldReader. All rights reserved.
+      </Typography>
+    </Footer>
   </Box>
 );
 
@@ -212,6 +228,11 @@ const PublicLayout = () => (
     <Box sx={{ flex: 1 }}>
       <Outlet />
     </Box>
+    <Footer>
+      <Typography variant="body2" sx={{ fontFamily: "Georgia, serif" }}>
+        © {new Date().getFullYear()} WorldReader. All rights reserved.
+      </Typography>
+    </Footer>
   </Box>
 );
 

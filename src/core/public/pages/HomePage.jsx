@@ -66,16 +66,6 @@ const FeatureIcon = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(2),
 }));
 
-const Footer = styled(Box)(({ theme }) => ({
-  textAlign: "center",
-  padding: theme.spacing(4),
-  backgroundColor: "#8B4513",
-  color: "white",
-  borderRadius: theme.shape.borderRadius * 2,
-  marginTop: theme.spacing(2),
-  width: "100%",
-}));
-
 const HomePage = () => {
   const navigate = useNavigate();
 
@@ -184,13 +174,6 @@ const HomePage = () => {
           </Grid>
         </Grid>
       </ContentWrapper>
-
-      {/* Footer */}
-      <Footer>
-        <Typography variant="body2" sx={{ fontFamily: "Georgia, serif" }}>
-          © {new Date().getFullYear()} WorldReader. All rights reserved.
-        </Typography>
-      </Footer>
     </HomeContainer>
   );
 };
