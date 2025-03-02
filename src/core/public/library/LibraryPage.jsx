@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../../App"; // Adjust path
+import { useAuth } from "../../../App";
 import { useGetUserLibrary } from "../../private/query";
 
 const LibraryPage = () => {
@@ -108,7 +108,10 @@ const LibraryPage = () => {
                   height="200"
                   image={
                     book.coverURL
-                      ? `http://localhost:5000/${book.coverURL}`
+                      ? `http://localhost:5000/${book.coverURL.replace(
+                          /\\/g,
+                          "/"
+                        )}`
                       : "/placeholder-cover.jpg"
                   }
                   alt={book.title}
@@ -118,7 +121,26 @@ const LibraryPage = () => {
                   <Typography variant="h6" sx={{ color: "#8B4513" }}>
                     {book.title}
                   </Typography>
-                  {/* Add more details or content link later */}
+                  <Button
+                    variant="contained"
+                    size="small"
+                    sx={{
+                      mt: 1,
+                      bgcolor: "#8B4513",
+                      "&:hover": { bgcolor: "#A0522D" },
+                    }}
+                    onClick={() =>
+                      window.open(
+                        `http://localhost:5000/${book.contentURL.replace(
+                          /\\/g,
+                          "/"
+                        )}`,
+                        "_blank"
+                      )
+                    }
+                  >
+                    Read
+                  </Button>
                 </CardContent>
               </Card>
             </Grid>

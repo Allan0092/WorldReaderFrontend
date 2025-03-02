@@ -27,8 +27,9 @@ const StorePage = () => {
     }
 
     const userId = user
-      ? user._id
+      ? user.id
       : JSON.parse(atob(getCurrentToken().split(".")[1])).id;
+    console.log("userId:", userId, "bookId:", bookId);
     addToLibrary(
       { userId, bookId },
       {
