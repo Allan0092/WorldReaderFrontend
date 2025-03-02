@@ -112,14 +112,10 @@ const LibraryPage = () => {
         result.sort((a, b) => b.title.localeCompare(a.title));
         break;
       case "date-asc":
-        result.sort(
-          (a, b) => new Date(a.publicationDate) - new Date(b.publicationDate)
-        );
+        result.sort((a, b) => new Date(a.dateAdded) - new Date(b.dateAdded));
         break;
       case "date-desc":
-        result.sort(
-          (a, b) => new Date(b.publicationDate) - new Date(a.publicationDate)
-        );
+        result.sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
         break;
       default:
         break;
