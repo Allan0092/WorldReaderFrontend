@@ -7,11 +7,19 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 // Styled components
-const HomeContainer = styled(Container)(({ theme }) => ({
-  paddingTop: theme.spacing(8),
-  paddingBottom: theme.spacing(8),
-  background: "linear-gradient(180deg, #FFF8E7 0%, #F5F5F5 100%)",
+const HomeContainer = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
   minHeight: "100vh",
+  background: "linear-gradient(180deg, #FFF8E7 0%, #F5F5F5 100%)",
+}));
+
+const ContentWrapper = styled(Container)(({ theme }) => ({
+  flex: 1,
+  paddingTop: theme.spacing(2),
+  paddingBottom: theme.spacing(2),
+  width: "100%",
+  maxWidth: "none",
 }));
 
 const HeroSection = styled(Box)(({ theme }) => ({
@@ -22,6 +30,8 @@ const HeroSection = styled(Box)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius * 2,
   boxShadow: "0 8px 16px rgba(139, 69, 19, 0.2)",
   marginBottom: theme.spacing(6),
+  marginLeft: 0,
+  marginRight: 0,
 }));
 
 const HeroButton = styled(Button)(({ theme }) => ({
@@ -61,115 +71,119 @@ const Footer = styled(Box)(({ theme }) => ({
   padding: theme.spacing(4),
   backgroundColor: "#8B4513",
   color: "white",
-  marginTop: theme.spacing(6),
   borderRadius: theme.shape.borderRadius * 2,
+  marginTop: theme.spacing(2),
+  width: "100%",
 }));
 
 const HomePage = () => {
   const navigate = useNavigate();
 
   return (
-    <HomeContainer maxWidth="lg">
-      {/* Hero Section */}
-      <HeroSection>
-        <Typography
-          variant="h2"
-          sx={{ fontFamily: "Georgia, serif", fontWeight: 600, mb: 2 }}
-        >
-          Welcome to WorldReader
-        </Typography>
-        <Typography variant="h5" sx={{ fontFamily: "Georgia, serif", mb: 4 }}>
-          Discover a world of books, build your library, and explore global
-          stories.
-        </Typography>
-        <HeroButton onClick={() => navigate("/store")}>
-          Explore the Store
-        </HeroButton>
-      </HeroSection>
+    <HomeContainer>
+      <ContentWrapper>
+        {/* Hero Section */}
+        <HeroSection>
+          <Typography
+            variant="h2"
+            sx={{ fontFamily: "Georgia, serif", fontWeight: 600, mb: 2 }}
+          >
+            Welcome to WorldReader
+          </Typography>
+          <Typography variant="h5" sx={{ fontFamily: "Georgia, serif", mb: 4 }}>
+            Discover a world of books, build your library, and explore global
+            stories.
+          </Typography>
+          <HeroButton onClick={() => navigate("/store")}>
+            Explore the Store
+          </HeroButton>
+        </HeroSection>
 
-      {/* Features Section */}
-      <Typography
-        variant="h4"
-        sx={{
-          fontFamily: "Georgia, serif",
-          color: "#8B4513",
-          textAlign: "center",
-          mb: 4,
-        }}
-      >
-        Discover Your Reading Journey
-      </Typography>
-      <Grid container spacing={4}>
-        <Grid item xs={12} sm={4}>
-          <FeatureCard>
-            <FeatureIcon>
-              <LibraryBooksIcon fontSize="inherit" />
-            </FeatureIcon>
-            <Typography
-              variant="h6"
-              sx={{ fontFamily: "Georgia, serif", color: "#8B4513", mb: 1 }}
-            >
-              Your Library
-            </Typography>
-            <Typography variant="body1" sx={{ color: "#5D4037" }}>
-              Curate and manage your personal collection of books from anywhere.
-            </Typography>
-            <Button
-              variant="text"
-              sx={{ color: "#8B4513", mt: 2, fontFamily: "Georgia, serif" }}
-              onClick={() => navigate("/library")}
-            >
-              Go to Library
-            </Button>
-          </FeatureCard>
+        {/* Features Section */}
+        <Typography
+          variant="h4"
+          sx={{
+            fontFamily: "Georgia, serif",
+            color: "#8B4513",
+            textAlign: "center",
+            mb: 4,
+          }}
+        >
+          Discover Your Reading Journey
+        </Typography>
+        <Grid container spacing={4}>
+          <Grid item xs={12} sm={4}>
+            <FeatureCard>
+              <FeatureIcon>
+                <LibraryBooksIcon fontSize="inherit" />
+              </FeatureIcon>
+              <Typography
+                variant="h6"
+                sx={{ fontFamily: "Georgia, serif", color: "#8B4513", mb: 1 }}
+              >
+                Your Library
+              </Typography>
+              <Typography variant="body1" sx={{ color: "#5D4037" }}>
+                Curate and manage your personal collection of books from
+                anywhere.
+              </Typography>
+              <Button
+                variant="text"
+                sx={{ color: "#8B4513", mt: 2, fontFamily: "Georgia, serif" }}
+                onClick={() => navigate("/library")}
+              >
+                Go to Library
+              </Button>
+            </FeatureCard>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <FeatureCard>
+              <FeatureIcon>
+                <StoreIcon fontSize="inherit" />
+              </FeatureIcon>
+              <Typography
+                variant="h6"
+                sx={{ fontFamily: "Georgia, serif", color: "#8B4513", mb: 1 }}
+              >
+                Book Store
+              </Typography>
+              <Typography variant="body1" sx={{ color: "#5D4037" }}>
+                Browse and add books from a diverse global catalog.
+              </Typography>
+              <Button
+                variant="text"
+                sx={{ color: "#8B4513", mt: 2, fontFamily: "Georgia, serif" }}
+                onClick={() => navigate("/store")}
+              >
+                Visit Store
+              </Button>
+            </FeatureCard>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <FeatureCard>
+              <FeatureIcon>
+                <MapIcon fontSize="inherit" />
+              </FeatureIcon>
+              <Typography
+                variant="h6"
+                sx={{ fontFamily: "Georgia, serif", color: "#8B4513", mb: 1 }}
+              >
+                World Map
+              </Typography>
+              <Typography variant="body1" sx={{ color: "#5D4037" }}>
+                Explore where stories come from with our interactive map.
+              </Typography>
+              <Button
+                variant="text"
+                sx={{ color: "#8B4513", mt: 2, fontFamily: "Georgia, serif" }}
+                onClick={() => navigate("/map")}
+              >
+                View Map
+              </Button>
+            </FeatureCard>
+          </Grid>
         </Grid>
-        <Grid item xs={12} sm={4}>
-          <FeatureCard>
-            <FeatureIcon>
-              <StoreIcon fontSize="inherit" />
-            </FeatureIcon>
-            <Typography
-              variant="h6"
-              sx={{ fontFamily: "Georgia, serif", color: "#8B4513", mb: 1 }}
-            >
-              Book Store
-            </Typography>
-            <Typography variant="body1" sx={{ color: "#5D4037" }}>
-              Browse and add books from a diverse global catalog.
-            </Typography>
-            <Button
-              variant="text"
-              sx={{ color: "#8B4513", mt: 2, fontFamily: "Georgia, serif" }}
-              onClick={() => navigate("/store")}
-            >
-              Visit Store
-            </Button>
-          </FeatureCard>
-        </Grid>
-        <Grid item xs={12} sm={4}>
-          <FeatureCard>
-            <FeatureIcon>
-              <MapIcon fontSize="inherit" />
-            </FeatureIcon>
-            <Typography
-              variant="h6"
-              sx={{ fontFamily: "Georgia, serif", color: "#8B4513", mb: 1 }}
-            >
-              World Map
-            </Typography>
-            <Typography variant="body1" sx={{ color: "#5D4037" }}>
-              Explore where stories come from with our interactive map.
-            </Typography>
-            <Button
-              variant="text"
-              sx={{ color: "#8B4513", mt: 2, fontFamily: "Georgia, serif" }}
-              onClick={() => navigate("/map")}
-            >
-              View Map
-            </Button>
-          </FeatureCard>
-        </Grid>
-      </Grid>
+      </ContentWrapper>
 
       {/* Footer */}
       <Footer>
