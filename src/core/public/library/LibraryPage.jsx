@@ -16,10 +16,12 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { useQueryClient } from "@tanstack/react-query"; // Add this import
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify"; // Add this import
 import { useAuth } from "../../../App"; // Adjust path
-import { useGetUserLibrary } from "../../private/query"; // Adjust path
+import { useGetUserLibrary, useRemoveFromLibrary } from "../../private/query"; // Adjust path
 
 // Styled components
 const LibraryContainer = styled(Container)(({ theme }) => ({
@@ -60,6 +62,18 @@ const ActionButton = styled(Button)(({ theme }) => ({
   fontFamily: "Georgia, serif",
 }));
 
+const RemoveButton = styled(Button)(({ theme }) => ({
+  backgroundColor: "#D32F2F",
+  color: "white",
+  "&:hover": {
+    backgroundColor: "#B71C1C",
+  },
+  borderRadius: theme.shape.borderRadius,
+  padding: theme.spacing(1, 2),
+  textTransform: "none",
+  fontFamily: "Georgia, serif",
+}));
+
 const EmptyStatePaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
   textAlign: "center",
@@ -82,28 +96,48 @@ const FilterContainer = styled(Box)(({ theme }) => ({
 const LibraryPage = () => {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const userId = user ? user.id : null;
   const {
     data: libraryBooks = [],
     isLoading,
     error,
   } = useGetUserLibrary(userId);
-
+  const { mutate: removeFromLibrary, isLoading: removeLoading } =
+    useRemoveFromLibrary();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("title-asc");
 
-  // Filter and sort books
+  const handleRemoveFromLibrary = (bookId) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to remove this book from your library?"
+      )
+    )
+      return;
+
+    removeFromLibrary(
+      { userId, bookId },
+      {
+        onSuccess: () => {
+          toast.success("Book removed from library!");
+          queryClient.invalidateQueries(["USER_LIBRARY", userId]);
+        },
+        onError: (error) =>
+          toast.error(error.response?.data?.message || "Failed to remove book"),
+      }
+    );
+  };
+
   const filteredAndSortedBooks = useMemo(() => {
     let result = [...libraryBooks];
 
-    // Search filter
     if (searchQuery) {
       result = result.filter((book) =>
         book.title.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
-    // Sort
     switch (sortOption) {
       case "title-asc":
         result.sort((a, b) => a.title.localeCompare(b.title));
@@ -271,19 +305,29 @@ const LibraryPage = () => {
                 />
                 <CardContent sx={{ textAlign: "center" }}>
                   <CardTitle>{book.title}</CardTitle>
-                  <ActionButton
-                    onClick={() =>
-                      window.open(
-                        `http://localhost:5000/${book.contentURL.replace(
-                          /\\/g,
-                          "/"
-                        )}`,
-                        "_blank"
-                      )
-                    }
+                  <Box
+                    sx={{ display: "flex", justifyContent: "center", gap: 1 }}
                   >
-                    Read Now
-                  </ActionButton>
+                    <ActionButton
+                      onClick={() =>
+                        window.open(
+                          `http://localhost:5000/${book.contentURL.replace(
+                            /\\/g,
+                            "/"
+                          )}`,
+                          "_blank"
+                        )
+                      }
+                    >
+                      Read Now
+                    </ActionButton>
+                    <RemoveButton
+                      onClick={() => handleRemoveFromLibrary(book._id)}
+                      disabled={removeLoading}
+                    >
+                      {removeLoading ? "Removing..." : "Remove"}
+                    </RemoveButton>
+                  </Box>
                 </CardContent>
               </LibraryCard>
             </Grid>
