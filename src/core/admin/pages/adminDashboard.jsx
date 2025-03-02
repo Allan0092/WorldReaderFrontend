@@ -31,13 +31,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useAuth } from "../../../App";
+import { useAuth } from "../../../App"; // Adjust path as needed
 import {
   useDeleteBook,
   useDeleteUser,
   useGetAllBooks,
   useGetAllUserList,
-} from "../query";
+  useUpdateUser,
+} from "../query"; // Adjust path
 
 // Styled components
 const DashboardCard = styled(Card)(({ theme }) => ({
@@ -63,7 +64,6 @@ const AdminDashboard = () => {
   const { isAdminAuthenticated, adminLogout } = useAuth();
   const [activeView, setActiveView] = useState("dashboard");
 
-  // Fetch users using React Query
   const {
     data: users = [],
     isLoading: usersLoading,
@@ -71,7 +71,6 @@ const AdminDashboard = () => {
     refetch: refetchUsers,
   } = useGetAllUserList();
 
-  // Fetch books using React Query
   const {
     data: books = [],
     isLoading: booksLoading,
@@ -79,7 +78,6 @@ const AdminDashboard = () => {
     refetch: refetchBooks,
   } = useGetAllBooks();
 
-  // Delete user mutation
   const { mutate: deleteUser, isLoading: deleteUserLoading } = useDeleteUser({
     onMutate: async (_id) => {
       console.log("Deleting user with _id:", _id);
@@ -106,7 +104,6 @@ const AdminDashboard = () => {
     },
   });
 
-  // Delete book mutation
   const { mutate: deleteBook, isLoading: deleteBookLoading } = useDeleteBook({
     onMutate: async (_id) => {
       console.log("Deleting book with _id:", _id);
@@ -133,32 +130,42 @@ const AdminDashboard = () => {
     },
   });
 
-  // Handle admin logout
+  const { mutate: updateUser, isLoading: updateUserLoading } = useUpdateUser({
+    onSuccess: () => {
+      toast.success("User verified successfully");
+      refetchUsers();
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || "Failed to verify user");
+    },
+  });
+
   const handleLogout = () => {
     adminLogout();
     toast.success("Logged out successfully");
     navigate("/admin");
   };
 
-  // Handle user deletion
   const handleDeleteUser = (_id) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
     deleteUser(_id);
   };
 
-  // Handle book deletion
   const handleDeleteBook = (_id) => {
     if (!window.confirm("Are you sure you want to delete this book?")) return;
     deleteBook(_id);
   };
 
-  // Redirect if not authenticated as admin
+  const handleVerifyUser = (userId) => {
+    if (!window.confirm("Are you sure you want to verify this user?")) return;
+    updateUser({ userId, updates: { verificationStatus: true } });
+  };
+
   if (!isAdminAuthenticated) {
     navigate("/admin");
     return null;
   }
 
-  // Handle loading state
   if (usersLoading || booksLoading) {
     return (
       <Box
@@ -178,7 +185,6 @@ const AdminDashboard = () => {
     toast.error("Failed to load data");
   }
 
-  // Render content based on active view
   const renderContent = () => {
     switch (activeView) {
       case "dashboard":
@@ -229,6 +235,7 @@ const AdminDashboard = () => {
                     <TableCell>ID</TableCell>
                     <TableCell>Email</TableCell>
                     <TableCell>Name</TableCell>
+                    <TableCell>Status</TableCell>
                     <TableCell>Actions</TableCell>
                   </TableRow>
                 </TableHead>
@@ -243,15 +250,30 @@ const AdminDashboard = () => {
                           : "Name not provided"}
                       </TableCell>
                       <TableCell>
+                        {user.verificationStatus ? "Verified" : "Unverified"}
+                      </TableCell>
+                      <TableCell>
                         <Button
                           variant="outlined"
                           color="error"
                           size="small"
                           onClick={() => handleDeleteUser(user._id)}
                           disabled={deleteUserLoading}
+                          sx={{ mr: 1 }}
                         >
                           {deleteUserLoading ? "Deleting..." : "Delete"}
                         </Button>
+                        {!user.verificationStatus && (
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            size="small"
+                            onClick={() => handleVerifyUser(user._id)}
+                            disabled={updateUserLoading}
+                          >
+                            {updateUserLoading ? "Verifying..." : "Verify"}
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -317,7 +339,6 @@ const AdminDashboard = () => {
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
-      {/* Sidebar */}
       <Sidebar variant="permanent" anchor="left">
         <Typography
           variant="h6"
@@ -346,10 +367,7 @@ const AdminDashboard = () => {
           </ListItem>
         </List>
       </Sidebar>
-
-      {/* Main Content */}
       <Box component="main" sx={{ flexGrow: 1, bgcolor: "#f5f5f5" }}>
-        {/* Redecorated Top Bar */}
         <AppBar
           position="sticky"
           sx={{
@@ -376,8 +394,6 @@ const AdminDashboard = () => {
             </Box>
           </Toolbar>
         </AppBar>
-
-        {/* Main Content Area */}
         <Container maxWidth="lg" sx={{ py: 4 }}>
           {renderContent()}
         </Container>
