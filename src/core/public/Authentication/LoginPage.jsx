@@ -14,7 +14,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useAuth } from "../../../App"; // Adjust path as needed
+import { useAuth, useTheme } from "../../../App";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -25,15 +25,16 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { darkMode } = useTheme();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setEmailError(false); // Reset errors on submit
+    setEmailError(false);
     setPasswordError(false);
 
     try {
-      await login(email, password); // Use AuthContext login
+      await login(email, password);
       toast.success("Welcome to WorldReader!");
       navigate("/library");
     } catch (error) {
@@ -56,14 +57,15 @@ const LoginPage = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        backgroundImage: `url('src/assets/images/loginSignupBg.png')`,
+        backgroundImage: darkMode
+          ? `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('src/assets/images/loginSignupBg.png')`
+          : `url('src/assets/images/loginSignupBg.png')`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        position: "relative",
         py: 4,
       }}
     >
@@ -71,7 +73,9 @@ const LoginPage = () => {
         <Paper
           elevation={6}
           sx={{
-            bgcolor: "rgba(255, 245, 235, 0.9)", // Warm parchment-like background
+            bgcolor: darkMode
+              ? "rgba(44, 54, 55, 0.9)"
+              : "rgba(255, 245, 235, 0.9)",
             p: 4,
             borderRadius: 3,
             position: "relative",
@@ -83,7 +87,11 @@ const LoginPage = () => {
             <img
               src="src/assets/images/WorldReaderLogo.png"
               alt="WorldReader Logo"
-              style={{ width: 120, height: 120 }}
+              style={{
+                width: 120,
+                height: 120,
+                filter: darkMode ? "brightness(1.2)" : "none",
+              }}
             />
           </Box>
 
@@ -91,14 +99,21 @@ const LoginPage = () => {
           <Typography
             variant="h4"
             align="center"
-            sx={{ fontFamily: "Georgia, serif", color: "#8B4513", mb: 2 }}
+            sx={{
+              fontFamily: "Georgia, serif",
+              color: darkMode ? "#D4A017" : "#8B4513",
+              mb: 2,
+            }}
           >
             WorldReader
           </Typography>
           <Typography
             variant="body2"
             align="center"
-            sx={{ color: "#A0522D", mb: 4 }}
+            sx={{
+              color: darkMode ? "#A67C00" : "#A0522D",
+              mb: 4,
+            }}
           >
             Log in to explore stories from around the globe
           </Typography>
@@ -120,12 +135,27 @@ const LoginPage = () => {
               required
               sx={{
                 mb: 3,
-                backgroundColor: "#FFF8E7",
+                backgroundColor: darkMode ? "#2E2E2E" : "#FFF8E7",
                 borderRadius: 2,
                 "& .MuiOutlinedInput-root": {
-                  "& fieldset": { borderColor: "#D2B48C" },
-                  "&:hover fieldset": { borderColor: "#A0522D" },
-                  "&.Mui-focused fieldset": { borderColor: "#8B4513" },
+                  "& fieldset": {
+                    borderColor: darkMode ? "#A67C00" : "#D2B48C",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: darkMode ? "#D4A017" : "#A0522D",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: darkMode ? "#D4A017" : "#8B4513",
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: darkMode ? "#E0E0E0" : "#8B4513",
+                },
+                "& .MuiInputBase-input": {
+                  color: darkMode ? "#E0E0E0" : "#5D4037",
+                },
+                "& .MuiFormHelperText-root": {
+                  color: darkMode ? "#E0E0E0" : "#A0522D",
                 },
               }}
             />
@@ -144,12 +174,27 @@ const LoginPage = () => {
               required
               sx={{
                 mb: 3,
-                backgroundColor: "#FFF8E7",
+                backgroundColor: darkMode ? "#2E2E2E" : "#FFF8E7",
                 borderRadius: 2,
                 "& .MuiOutlinedInput-root": {
-                  "& fieldset": { borderColor: "#D2B48C" },
-                  "&:hover fieldset": { borderColor: "#A0522D" },
-                  "&.Mui-focused fieldset": { borderColor: "#8B4513" },
+                  "& fieldset": {
+                    borderColor: darkMode ? "#A67C00" : "#D2B48C",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: darkMode ? "#D4A017" : "#A0522D",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: darkMode ? "#D4A017" : "#8B4513",
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: darkMode ? "#E0E0E0" : "#8B4513",
+                },
+                "& .MuiInputBase-input": {
+                  color: darkMode ? "#E0E0E0" : "#5D4037",
+                },
+                "& .MuiFormHelperText-root": {
+                  color: darkMode ? "#E0E0E0" : "#A0522D",
                 },
               }}
               InputProps={{
@@ -160,6 +205,7 @@ const LoginPage = () => {
                       onClick={() => setShowPassword(!showPassword)}
                       edge="end"
                       disabled={isLoading}
+                      sx={{ color: darkMode ? "#E0E0E0" : "#8B4513" }}
                     >
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -176,12 +222,12 @@ const LoginPage = () => {
               disabled={isLoading}
               sx={{
                 py: 1.5,
-                bgcolor: "#8B4513",
+                bgcolor: darkMode ? "#D4A017" : "#8B4513",
                 color: "white",
                 borderRadius: 2,
                 boxShadow: "0 4px 12px rgba(139, 69, 19, 0.3)",
-                "&:hover": { bgcolor: "#A0522D" },
-                "&:disabled": { bgcolor: "#D2B48C" },
+                "&:hover": { bgcolor: darkMode ? "#A67C00" : "#A0522D" },
+                "&:disabled": { bgcolor: darkMode ? "#5D4037" : "#D2B48C" },
               }}
             >
               {isLoading ? (
@@ -201,13 +247,16 @@ const LoginPage = () => {
           elevation={3}
           sx={{
             mt: 2,
-            bgcolor: "white",
+            bgcolor: darkMode ? "#2E2E2E" : "white",
             p: 3,
             borderRadius: 2,
             textAlign: "center",
           }}
         >
-          <Typography variant="body2" sx={{ color: "#666" }}>
+          <Typography
+            variant="body2"
+            sx={{ color: darkMode ? "#E0E0E0" : "#666" }}
+          >
             Log in with
           </Typography>
           <Box
@@ -231,20 +280,30 @@ const LoginPage = () => {
               <img
                 src="src/assets/images/ant-design_github-filled.png"
                 alt="GitHub"
-                style={{ width: 32, height: 32 }}
+                style={{
+                  width: 32,
+                  height: 32,
+                  filter: darkMode ? "brightness(1.2)" : "none",
+                }}
               />
             </IconButton>
           </Box>
-          <Typography variant="body2" sx={{ color: "#666" }}>
+          <Typography
+            variant="body2"
+            sx={{ color: darkMode ? "#E0E0E0" : "#666" }}
+          >
             Not registered?{" "}
-            <a
+            <Box
+              component="a"
               href="/register"
-              style={{ color: "#8B4513", textDecoration: "none" }}
-              onMouseOver={(e) => (e.target.style.textDecoration = "underline")}
-              onMouseOut={(e) => (e.target.style.textDecoration = "none")}
+              sx={{
+                color: darkMode ? "#D4A017" : "#8B4513",
+                textDecoration: "none",
+                "&:hover": { textDecoration: "underline" },
+              }}
             >
               Sign up
-            </a>
+            </Box>
           </Typography>
         </Paper>
       </Container>

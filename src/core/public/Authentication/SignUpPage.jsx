@@ -17,6 +17,7 @@ import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useTheme } from "../../../App";
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
@@ -31,6 +32,7 @@ const SignUpPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [termsAgreed, setTermsAgreed] = useState(false);
   const navigate = useNavigate();
+  const { darkMode } = useTheme();
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -76,7 +78,9 @@ const SignUpPage = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        backgroundImage: `url('src/assets/images/loginSignupBg.png')`,
+        backgroundImage: darkMode
+          ? `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('src/assets/images/loginSignupBg.png')`
+          : `url('src/assets/images/loginSignupBg.png')`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
@@ -91,7 +95,9 @@ const SignUpPage = () => {
         <Paper
           elevation={6}
           sx={{
-            bgcolor: "rgba(255, 245, 235, 0.9)", // Parchment-like overlay
+            bgcolor: darkMode
+              ? "rgba(44, 54, 55, 0.9)"
+              : "rgba(255, 245, 235, 0.9)",
             p: 4,
             borderRadius: 3,
             position: "relative",
@@ -103,7 +109,11 @@ const SignUpPage = () => {
             <img
               src="src/assets/images/WorldReaderLogo.png"
               alt="WorldReader Logo"
-              style={{ width: 120, height: 120 }}
+              style={{
+                width: 120,
+                height: 120,
+                filter: darkMode ? "brightness(1.2)" : "none",
+              }}
             />
           </Box>
 
@@ -111,14 +121,21 @@ const SignUpPage = () => {
           <Typography
             variant="h4"
             align="center"
-            sx={{ fontFamily: "Georgia, serif", color: "#8B4513", mb: 2 }}
+            sx={{
+              fontFamily: "Georgia, serif",
+              color: darkMode ? "#D4A017" : "#8B4513",
+              mb: 2,
+            }}
           >
             Join WorldReader
           </Typography>
           <Typography
             variant="body2"
             align="center"
-            sx={{ color: "#A0522D", mb: 4 }}
+            sx={{
+              color: darkMode ? "#A67C00" : "#A0522D",
+              mb: 4,
+            }}
           >
             Create an account to dive into a world of stories
           </Typography>
@@ -136,12 +153,24 @@ const SignUpPage = () => {
                 disabled={isLoading}
                 required
                 sx={{
-                  backgroundColor: "#FFF8E7",
+                  backgroundColor: darkMode ? "#2E2E2E" : "#FFF8E7",
                   borderRadius: 2,
                   "& .MuiOutlinedInput-root": {
-                    "& fieldset": { borderColor: "#D2B48C" },
-                    "&:hover fieldset": { borderColor: "#A0522D" },
-                    "&.Mui-focused fieldset": { borderColor: "#8B4513" },
+                    "& fieldset": {
+                      borderColor: darkMode ? "#A67C00" : "#D2B48C",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: darkMode ? "#D4A017" : "#A0522D",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: darkMode ? "#D4A017" : "#8B4513",
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: darkMode ? "#E0E0E0" : "#8B4513",
+                  },
+                  "& .MuiInputBase-input": {
+                    color: darkMode ? "#E0E0E0" : "#5D4037",
                   },
                 }}
               />
@@ -155,12 +184,24 @@ const SignUpPage = () => {
                 disabled={isLoading}
                 required
                 sx={{
-                  backgroundColor: "#FFF8E7",
+                  backgroundColor: darkMode ? "#2E2E2E" : "#FFF8E7",
                   borderRadius: 2,
                   "& .MuiOutlinedInput-root": {
-                    "& fieldset": { borderColor: "#D2B48C" },
-                    "&:hover fieldset": { borderColor: "#A0522D" },
-                    "&.Mui-focused fieldset": { borderColor: "#8B4513" },
+                    "& fieldset": {
+                      borderColor: darkMode ? "#A67C00" : "#D2B48C",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: darkMode ? "#D4A017" : "#A0522D",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: darkMode ? "#D4A017" : "#8B4513",
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: darkMode ? "#E0E0E0" : "#8B4513",
+                  },
+                  "& .MuiInputBase-input": {
+                    color: darkMode ? "#E0E0E0" : "#5D4037",
                   },
                 }}
               />
@@ -177,12 +218,24 @@ const SignUpPage = () => {
               required
               sx={{
                 mb: 3,
-                backgroundColor: "#FFF8E7",
+                backgroundColor: darkMode ? "#2E2E2E" : "#FFF8E7",
                 borderRadius: 2,
                 "& .MuiOutlinedInput-root": {
-                  "& fieldset": { borderColor: "#D2B48C" },
-                  "&:hover fieldset": { borderColor: "#A0522D" },
-                  "&.Mui-focused fieldset": { borderColor: "#8B4513" },
+                  "& fieldset": {
+                    borderColor: darkMode ? "#A67C00" : "#D2B48C",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: darkMode ? "#D4A017" : "#A0522D",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: darkMode ? "#D4A017" : "#8B4513",
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: darkMode ? "#E0E0E0" : "#8B4513",
+                },
+                "& .MuiInputBase-input": {
+                  color: darkMode ? "#E0E0E0" : "#5D4037",
                 },
               }}
             />
@@ -198,12 +251,24 @@ const SignUpPage = () => {
               required
               sx={{
                 mb: 3,
-                backgroundColor: "#FFF8E7",
+                backgroundColor: darkMode ? "#2E2E2E" : "#FFF8E7",
                 borderRadius: 2,
                 "& .MuiOutlinedInput-root": {
-                  "& fieldset": { borderColor: "#D2B48C" },
-                  "&:hover fieldset": { borderColor: "#A0522D" },
-                  "&.Mui-focused fieldset": { borderColor: "#8B4513" },
+                  "& fieldset": {
+                    borderColor: darkMode ? "#A67C00" : "#D2B48C",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: darkMode ? "#D4A017" : "#A0522D",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: darkMode ? "#D4A017" : "#8B4513",
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: darkMode ? "#E0E0E0" : "#8B4513",
+                },
+                "& .MuiInputBase-input": {
+                  color: darkMode ? "#E0E0E0" : "#5D4037",
                 },
               }}
               InputProps={{
@@ -214,6 +279,7 @@ const SignUpPage = () => {
                       onClick={() => setShowPassword(!showPassword)}
                       edge="end"
                       disabled={isLoading}
+                      sx={{ color: darkMode ? "#E0E0E0" : "#8B4513" }}
                     >
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -226,31 +292,44 @@ const SignUpPage = () => {
               id="confirmPassword"
               name="confirmPassword"
               label="Confirm Password"
-              type={showPassword ? "text" : "password"}
+              type={showConfirmPassword ? "text" : "password"}
               value={formData.confirmPassword}
               onChange={handleChange}
               disabled={isLoading}
               required
               sx={{
                 mb: 3,
-                backgroundColor: "#FFF8E7",
+                backgroundColor: darkMode ? "#2E2E2E" : "#FFF8E7",
                 borderRadius: 2,
                 "& .MuiOutlinedInput-root": {
-                  "& fieldset": { borderColor: "#D2B48C" },
-                  "&:hover fieldset": { borderColor: "#A0522D" },
-                  "&.Mui-focused fieldset": { borderColor: "#8B4513" },
+                  "& fieldset": {
+                    borderColor: darkMode ? "#A67C00" : "#D2B48C",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: darkMode ? "#D4A017" : "#A0522D",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: darkMode ? "#D4A017" : "#8B4513",
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: darkMode ? "#E0E0E0" : "#8B4513",
+                },
+                "& .MuiInputBase-input": {
+                  color: darkMode ? "#E0E0E0" : "#5D4037",
                 },
               }}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
-                      aria-label="toggle password visibility"
+                      aria-label="toggle confirm password visibility"
                       onClick={() =>
                         setShowConfirmPassword(!showConfirmPassword)
                       }
                       edge="end"
                       disabled={isLoading}
+                      sx={{ color: darkMode ? "#E0E0E0" : "#8B4513" }}
                     >
                       {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -265,20 +344,29 @@ const SignUpPage = () => {
                   onChange={(e) => setTermsAgreed(e.target.checked)}
                   disabled={isLoading}
                   sx={{
-                    color: "#D2B48C",
-                    "&.Mui-checked": { color: "#8B4513" },
+                    color: darkMode ? "#A67C00" : "#D2B48C",
+                    "&.Mui-checked": {
+                      color: darkMode ? "#D4A017" : "#8B4513",
+                    },
                   }}
                 />
               }
               label={
-                <Typography variant="body2" sx={{ color: "#666" }}>
+                <Typography
+                  variant="body2"
+                  sx={{ color: darkMode ? "#E0E0E0" : "#666" }}
+                >
                   I agree to the{" "}
-                  <a
+                  <Box
+                    component="a"
                     href="#"
-                    style={{ color: "#8B4513", textDecoration: "underline" }}
+                    sx={{
+                      color: darkMode ? "#D4A017" : "#8B4513",
+                      textDecoration: "underline",
+                    }}
                   >
                     terms and conditions
-                  </a>
+                  </Box>
                 </Typography>
               }
               sx={{ mb: 3 }}
@@ -290,12 +378,12 @@ const SignUpPage = () => {
               disabled={isLoading}
               sx={{
                 py: 1.5,
-                bgcolor: "#8B4513",
+                bgcolor: darkMode ? "#D4A017" : "#8B4513",
                 color: "white",
                 borderRadius: 2,
                 boxShadow: "0 4px 12px rgba(139, 69, 19, 0.3)",
-                "&:hover": { bgcolor: "#A0522D" },
-                "&:disabled": { bgcolor: "#D2B48C" },
+                "&:hover": { bgcolor: darkMode ? "#A67C00" : "#A0522D" },
+                "&:disabled": { bgcolor: darkMode ? "#5D4037" : "#D2B48C" },
               }}
             >
               {isLoading ? (
@@ -315,13 +403,16 @@ const SignUpPage = () => {
           elevation={3}
           sx={{
             mt: 2,
-            bgcolor: "white",
+            bgcolor: darkMode ? "#2E2E2E" : "white",
             p: 3,
             borderRadius: 2,
             textAlign: "center",
           }}
         >
-          <Typography variant="body2" sx={{ color: "#666" }}>
+          <Typography
+            variant="body2"
+            sx={{ color: darkMode ? "#E0E0E0" : "#666" }}
+          >
             Sign up with
           </Typography>
           <Box
@@ -345,20 +436,30 @@ const SignUpPage = () => {
               <img
                 src="src/assets/images/ant-design_github-filled.png"
                 alt="GitHub"
-                style={{ width: 32, height: 32 }}
+                style={{
+                  width: 32,
+                  height: 32,
+                  filter: darkMode ? "brightness(1.2)" : "none",
+                }}
               />
             </IconButton>
           </Box>
-          <Typography variant="body2" sx={{ color: "#666" }}>
+          <Typography
+            variant="body2"
+            sx={{ color: darkMode ? "#E0E0E0" : "#666" }}
+          >
             Already registered?{" "}
-            <a
+            <Box
+              component="a"
               href="/login"
-              style={{ color: "#8B4513", textDecoration: "none" }}
-              onMouseOver={(e) => (e.target.style.textDecoration = "underline")}
-              onMouseOut={(e) => (e.target.style.textDecoration = "none")}
+              sx={{
+                color: darkMode ? "#D4A017" : "#8B4513",
+                textDecoration: "none",
+                "&:hover": { textDecoration: "underline" },
+              }}
             >
               Log in
-            </a>
+            </Box>
           </Typography>
         </Paper>
       </Container>

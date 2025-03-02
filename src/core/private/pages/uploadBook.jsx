@@ -6,36 +6,72 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useAuth } from "../../../App"; // Adjust path
-import { getCurrentToken } from "../../../utils/authUtil"; // Adjust path
+import { useAuth, useTheme } from "../../../App";
+import { getCurrentToken } from "../../../utils/authUtil";
+
+// Styled components
+const UploadWrapper = styled(Box)(({ theme, darkMode }) => ({
+  minHeight: "100vh",
+  background: darkMode
+    ? "linear-gradient(180deg, #1C2526 0%, #2E2E2E 100%)"
+    : "linear-gradient(180deg, #FFF8E7 0%, #F5F5F5 100%)",
+  width: "100vw",
+  position: "absolute",
+  top: 0,
+  left: 0,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center", // Center horizontally
+  justifyContent: "center", // Center vertically
+}));
+
+const UploadContainer = styled(Container)(({ theme }) => ({
+  width: "100%",
+  maxWidth: "sm",
+  marginLeft: "auto",
+  marginRight: "auto",
+  paddingTop: theme.spacing(4), // Add top padding
+  paddingBottom: theme.spacing(4), // Add bottom padding
+}));
+
+const UploadBox = styled(Box)(({ theme, darkMode }) => ({
+  backgroundColor: darkMode
+    ? "rgba(44, 54, 55, 0.95)"
+    : "rgba(255, 245, 235, 0.95)",
+  padding: theme.spacing(4),
+  borderRadius: 3,
+  boxShadow: darkMode
+    ? "0 4px 12px rgba(212, 160, 23, 0.1)"
+    : "0 4px 12px rgba(139, 69, 19, 0.1)",
+}));
 
 const UploadBookPage = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { darkMode } = useTheme();
   const [formData, setFormData] = useState({
     title: "",
     isbn: "",
-    publicationDate: new Date().toISOString().split("T")[0], // Default to today
+    publicationDate: new Date().toISOString().split("T")[0],
     contentType: "PDF",
-    author: "", // Will be set from token
+    author: "",
   });
   const [file, setFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Set author from token on mount
   useEffect(() => {
     const token = getCurrentToken();
     if (token) {
       const payload = JSON.parse(atob(token.split(".")[1]));
-      setFormData((prev) => ({ ...prev, author: payload.id || payload.sub })); // Adjust based on your token payload
+      setFormData((prev) => ({ ...prev, author: payload.id || payload.sub }));
     }
   }, []);
 
-  // Redirect if not authenticated
   if (!isAuthenticated) {
     navigate("/login");
     return null;
@@ -100,84 +136,154 @@ const UploadBookPage = () => {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4 }}>
-      <Box
-        sx={{
-          bgcolor: "rgba(255, 245, 235, 0.95)",
-          p: 4,
-          borderRadius: 3,
-          boxShadow: "0 4px 12px rgba(139, 69, 19, 0.1)",
-        }}
-      >
-        <Typography
-          variant="h4"
-          align="center"
-          sx={{ fontFamily: "Georgia, serif", color: "#8B4513", mb: 3 }}
-        >
-          Upload a Book
-        </Typography>
-        <form onSubmit={handleSubmit}>
-          <TextField
-            fullWidth
-            label="Title"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            disabled={isLoading}
-            required
-            sx={{ mb: 3, backgroundColor: "#FFF8E7" }}
-          />
-          <TextField
-            fullWidth
-            label="ISBN"
-            name="isbn"
-            value={formData.isbn}
-            onChange={handleChange}
-            disabled={isLoading}
-            sx={{ mb: 3, backgroundColor: "#FFF8E7" }}
-          />
-          <TextField
-            fullWidth
-            label="Publication Date"
-            name="publicationDate"
-            type="date"
-            value={formData.publicationDate}
-            onChange={handleChange}
-            disabled={isLoading}
-            InputLabelProps={{ shrink: true }}
-            sx={{ mb: 3, backgroundColor: "#FFF8E7" }}
-          />
-          <Box sx={{ mb: 3 }}>
-            <input
-              type="file"
-              accept=".pdf"
-              onChange={handleFileChange}
-              disabled={isLoading}
-              style={{ display: "block", width: "100%" }}
-            />
-          </Box>
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            disabled={isLoading}
+    <UploadWrapper darkMode={darkMode}>
+      <UploadContainer>
+        <UploadBox darkMode={darkMode}>
+          <Typography
+            variant="h4"
+            align="center"
             sx={{
-              py: 1.5,
-              bgcolor: "#8B4513",
-              color: "white",
-              "&:hover": { bgcolor: "#A0522D" },
-              "&:disabled": { bgcolor: "#D2B48C" },
+              fontFamily: "Georgia, serif",
+              color: darkMode ? "#D4A017" : "#8B4513",
+              mb: 3,
             }}
           >
-            {isLoading ? (
-              <CircularProgress size={20} sx={{ color: "white" }} />
-            ) : (
-              "Upload Book"
-            )}
-          </Button>
-        </form>
-      </Box>
-    </Container>
+            Upload a Book
+          </Typography>
+          <form onSubmit={handleSubmit}>
+            <TextField
+              fullWidth
+              label="Title"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              disabled={isLoading}
+              required
+              sx={{
+                mb: 3,
+                backgroundColor: darkMode ? "#2E2E2E" : "#FFF8E7",
+                borderRadius: 2,
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: darkMode ? "#A67C00" : "#D2B48C",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: darkMode ? "#D4A017" : "#A0522D",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: darkMode ? "#D4A017" : "#8B4513",
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: darkMode ? "#E0E0E0" : "#8B4513",
+                },
+                "& .MuiInputBase-input": {
+                  color: darkMode ? "#E0E0E0" : "#5D4037",
+                },
+              }}
+            />
+            <TextField
+              fullWidth
+              label="ISBN"
+              name="isbn"
+              value={formData.isbn}
+              onChange={handleChange}
+              disabled={isLoading}
+              sx={{
+                mb: 3,
+                backgroundColor: darkMode ? "#2E2E2E" : "#FFF8E7",
+                borderRadius: 2,
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: darkMode ? "#A67C00" : "#D2B48C",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: darkMode ? "#D4A017" : "#A0522D",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: darkMode ? "#D4A017" : "#8B4513",
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: darkMode ? "#E0E0E0" : "#8B4513",
+                },
+                "& .MuiInputBase-input": {
+                  color: darkMode ? "#E0E0E0" : "#5D4037",
+                },
+              }}
+            />
+            <TextField
+              fullWidth
+              label="Publication Date"
+              name="publicationDate"
+              type="date"
+              value={formData.publicationDate}
+              onChange={handleChange}
+              disabled={isLoading}
+              InputLabelProps={{ shrink: true }}
+              sx={{
+                mb: 3,
+                backgroundColor: darkMode ? "#2E2E2E" : "#FFF8E7",
+                borderRadius: 2,
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: darkMode ? "#A67C00" : "#D2B48C",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: darkMode ? "#D4A017" : "#A0522D",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: darkMode ? "#D4A017" : "#8B4513",
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: darkMode ? "#E0E0E0" : "#8B4513",
+                },
+                "& .MuiInputBase-input": {
+                  color: darkMode ? "#E0E0E0" : "#5D4037",
+                },
+              }}
+            />
+            <Box sx={{ mb: 3 }}>
+              <input
+                type="file"
+                accept=".pdf"
+                onChange={handleFileChange}
+                disabled={isLoading}
+                style={{
+                  display: "block",
+                  width: "100%",
+                  padding: "8px",
+                  backgroundColor: darkMode ? "#2E2E2E" : "#FFF8E7",
+                  color: darkMode ? "#E0E0E0" : "#5D4037",
+                  borderRadius: "4px",
+                  border: darkMode ? "1px solid #A67C00" : "1px solid #D2B48C",
+                }}
+              />
+            </Box>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              disabled={isLoading}
+              sx={{
+                py: 1.5,
+                bgcolor: darkMode ? "#D4A017" : "#8B4513",
+                color: "white",
+                "&:hover": { bgcolor: darkMode ? "#A67C00" : "#A0522D" },
+                "&:disabled": { bgcolor: darkMode ? "#5D4037" : "#D2B48C" },
+              }}
+            >
+              {isLoading ? (
+                <CircularProgress size={20} sx={{ color: "white" }} />
+              ) : (
+                "Upload Book"
+              )}
+            </Button>
+          </form>
+        </UploadBox>
+      </UploadContainer>
+    </UploadWrapper>
   );
 };
 

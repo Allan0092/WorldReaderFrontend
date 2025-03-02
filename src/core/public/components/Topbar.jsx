@@ -22,7 +22,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth, useTheme } from "../../../App";
 
-const Logo = styled("img")({
+const Logo = styled("img")(({ theme, darkMode }) => ({
   height: 48,
   width: "auto",
   cursor: "pointer",
@@ -30,14 +30,11 @@ const Logo = styled("img")({
   "&:hover": {
     transform: "scale(1.05)",
   },
-});
+  filter: darkMode ? "brightness(1.2)" : "none",
+}));
 
 const logoImage = "/WorldReaderLogo.png";
 const userProfilePicture = "/path/to/profile/picture.jpg";
-
-// function logout() {
-//   localStorage.removeItem("token");
-// }
 
 function TopBar() {
   const navigate = useNavigate();
@@ -63,7 +60,7 @@ function TopBar() {
     <AppBar
       position="sticky"
       sx={{
-        bgcolor: "#8B4513", // SaddleBrown for a rich, bookish feel
+        bgcolor: darkMode ? "#1C2526" : "#8B4513",
         boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
       }}
     >
@@ -73,6 +70,7 @@ function TopBar() {
           onClick={() => navigate("/home")}
           src={logoImage}
           alt="WorldReader Logo"
+          darkMode={darkMode}
         />
 
         {/* Navigation Buttons */}
@@ -92,7 +90,10 @@ function TopBar() {
               textTransform: "none",
               fontFamily: "Georgia, serif",
               fontSize: "1.1rem",
-              "&:hover": { bgcolor: "#A0522D" },
+              color: darkMode ? "#E0E0E0" : "white",
+              "&:hover": {
+                bgcolor: darkMode ? "#2E2E2E" : "#A0522D",
+              },
             }}
           >
             Map
@@ -105,7 +106,10 @@ function TopBar() {
               textTransform: "none",
               fontFamily: "Georgia, serif",
               fontSize: "1.1rem",
-              "&:hover": { bgcolor: "#A0522D" },
+              color: darkMode ? "#E0E0E0" : "white",
+              "&:hover": {
+                bgcolor: darkMode ? "#2E2E2E" : "#A0522D",
+              },
             }}
           >
             Library
@@ -118,7 +122,10 @@ function TopBar() {
               textTransform: "none",
               fontFamily: "Georgia, serif",
               fontSize: "1.1rem",
-              "&:hover": { bgcolor: "#A0522D" },
+              color: darkMode ? "#E0E0E0" : "white",
+              "&:hover": {
+                bgcolor: darkMode ? "#2E2E2E" : "#A0522D",
+              },
             }}
           >
             Store
@@ -131,7 +138,10 @@ function TopBar() {
           <Tooltip
             title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
           >
-            <IconButton onClick={toggleDarkMode} color="inherit">
+            <IconButton
+              onClick={toggleDarkMode}
+              sx={{ color: darkMode ? "#E0E0E0" : "white" }}
+            >
               {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
           </Tooltip>
@@ -143,7 +153,7 @@ function TopBar() {
               aria-controls="menu-appbar"
               aria-haspopup="true"
               onClick={handleMenu}
-              color="inherit"
+              sx={{ color: darkMode ? "#E0E0E0" : "white" }}
             >
               <Avatar
                 alt="User Profile"
@@ -161,20 +171,29 @@ function TopBar() {
             open={Boolean(anchorEl)}
             onClose={handleClose}
             PaperProps={{
-              sx: { bgcolor: "#FFF8E7", color: "#8B4513" }, // Parchment-like menu
+              sx: {
+                bgcolor: darkMode ? "#2E2E2E" : "#FFF8E7",
+                color: darkMode ? "#E0E0E0" : "#8B4513",
+              },
             }}
           >
             {isAuthenticated ? (
               [
                 <MenuItem key="profile" onClick={handleClickSettings}>
-                  <AccountCircleIcon sx={{ mr: 1 }} /> Profile
+                  <AccountCircleIcon
+                    sx={{ mr: 1, color: darkMode ? "#E0E0E0" : "#8B4513" }}
+                  />{" "}
+                  Profile
                 </MenuItem>,
                 <MenuItem
                   key="logout"
                   onClick={handleLogout}
-                  sx={{ color: "#A0522D" }}
+                  sx={{ color: darkMode ? "#A67C00" : "#A0522D" }}
                 >
-                  <LogoutIcon sx={{ mr: 1 }} /> Log Out
+                  <LogoutIcon
+                    sx={{ mr: 1, color: darkMode ? "#A67C00" : "#A0522D" }}
+                  />{" "}
+                  Log Out
                 </MenuItem>,
               ]
             ) : (
@@ -184,7 +203,10 @@ function TopBar() {
                   navigate("/login");
                 }}
               >
-                <LoginIcon sx={{ mr: 1 }} /> Log In
+                <LoginIcon
+                  sx={{ mr: 1, color: darkMode ? "#E0E0E0" : "#8B4513" }}
+                />{" "}
+                Log In
               </MenuItem>
             )}
           </Menu>
