@@ -11,7 +11,7 @@ import {
 import React from "react";
 import { toast } from "react-toastify";
 import { useAuth } from "../../../App";
-import { getCurrentToken } from "../../../utils/authUtil";
+import { getCurrentUserId } from "../../../utils/authUtil";
 import { useAddToLibrary } from "../../private/query";
 import { useGetAllBooksPublic } from "../query";
 
@@ -26,10 +26,7 @@ const StorePage = () => {
       return;
     }
 
-    const userId = user
-      ? user.id
-      : JSON.parse(atob(getCurrentToken().split(".")[1])).id;
-    console.log("userId:", userId, "bookId:", bookId);
+    const userId = user ? user.id : getCurrentUserId();
     addToLibrary(
       { userId, bookId },
       {

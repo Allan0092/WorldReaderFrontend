@@ -77,6 +77,7 @@ export {
   getAdminToken,
   getCurrentToken,
   getCurrentUserDetails,
+  getCurrentUserId,
   isAdmin,
   isTokenValid,
   removeAdminToken,

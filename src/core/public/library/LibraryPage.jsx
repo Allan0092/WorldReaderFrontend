@@ -16,7 +16,7 @@ import { useGetUserLibrary } from "../../private/query";
 const LibraryPage = () => {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
-  const userId = user ? user._id : null;
+  const userId = user ? user.id : null;
   const {
     data: libraryBooks = [],
     isLoading,
