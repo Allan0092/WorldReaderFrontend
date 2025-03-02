@@ -69,7 +69,12 @@ A React-based frontend for WorldReader, a global book-sharing and reading platfo
 ![Sign Page Screenshot](./screenShots/Screenshot%202025-03-02%20201907.png)
 ![Sign Page Dark Screenshot](./screenShots/Screenshot%202025-03-02%20201914.png)
 
+## Admin Login
+
+![Admin Login Page Screenshot](./screenShots/Screenshot%202025-03-02%20234859.png)
+
 ## Admin Dashboard Page
 
-![Page Screenshot](./screenShots/)
-![Page Screenshot](./screenShots/)
+![admin dashboard Page Screenshot](./screenShots/Screenshot%202025-03-02%20234917.png)
+![Page Screenshot](./screenShots/Screenshot%202025-03-02%20234928.png)
+![Page Screenshot](./screenShots/Screenshot%202025-03-02%20234937.png)
